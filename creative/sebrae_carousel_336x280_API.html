@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=336, initial-scale=1">
+<title>SEBRAE · Carrossel 336×280 (FINAL)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+  width:336px;height:280px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans";
+  color:#0b1220;
+}
+.stage{ width:336px;height:280px;border-radius:12px;overflow:hidden;background:#e9eef3;position:relative; }
+.viewport{ position:absolute; inset:0; overflow:hidden; }
+.track{ display:flex; width:100%; height:100%; transition: transform .24s ease; }
+.slide{ flex:0 0 100%; display:block; height:100%; position:relative; }
+.gradient{ position:absolute; inset:0; background:linear-gradient(to top right,#a0e9c1 0%,#83d4d9 52%,#67b9f6 100%); }
+
+/* ===== Perguntas (todas) – tamanhos otimizados ===== */
+.inner{ position:absolute; inset:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.header{ display:flex; align-items:center; gap:8px; }
+.header .step{ font-weight:800; font-size:12px; white-space:nowrap; }
+.header .line{ flex:1; height:2px; background:rgba(11,18,32,.45); border-radius:2px; }
+.q{ font-weight:800; font-size:12.5px; line-height:1.3; margin-bottom:2px; }
+
+/* Radios visualmente idênticos, porém mais compactos */
+.opts{ display:flex; flex-direction:column; gap:9px; }
+label.opt{ display:flex; gap:8px; align-items:flex-start; font-size:11px; line-height:1.3; cursor:pointer; user-select:none; }
+label.opt input{ position:absolute; opacity:0; pointer-events:none; }
+label.opt .o{ width:16px;height:16px;border:2px solid rgba(11,18,32,.65);border-radius:999px;flex:0 0 16px; position:relative; margin-top:1px; }
+label.opt .o::after{ content:""; position:absolute; inset:2px; border-radius:999px; background:#0b1220; transform:scale(0); transition:transform .15s ease; }
+label.opt input:checked + .o::after{ transform:scale(1); }
+label.opt input:focus-visible + .o{ outline:2px solid #0b1220; outline-offset:2px; }
+label.opt .t{ flex:1; }
+
+/* ===== Barra inferior ===== */
+.bbar{ position:absolute; left:10px; right:10px; bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+.bbar.hidden{ display:none; }
+.dots{ display:flex; gap:4px; padding:6px 8px; }
+.dot{ width:6px;height:6px;border-radius:999px;background:#c6d4e4; }
+.dot.act{ background:#0b1220; }
+.btn{ background:#fff;color:#0b1833;font-weight:900;letter-spacing:.2px;font-size:12px;padding:8px 10px;border-radius:8px;border:2px solid #fff;
+      box-shadow:0 2px 0 rgba(0,0,0,.06),0 6px 14px rgba(0,0,0,.12);display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none; }
+.btn[disabled]{ opacity:.6; cursor:not-allowed; }
+
+/* ===== Layout “card container” (slides 0, 6, 7) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+.container{
+  width:336px;height:280px;padding:14px 15px;background:linear-gradient(to top right,#a0e9c1 0%,#83d4d9 52%,#67b9f6 100%);
+  color:#000;border-radius:15px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 15px rgba(0,0,0,.2);
+}
+.container .header h1{ font-size:1.06em; font-weight:700; line-height:1.2; margin:0 0 6px 0; }
+.intro{ font-size:.7em; margin-bottom:6px; }
+.benefits{ display:flex; flex-wrap:wrap; font-size:.7em; gap:2px 0; margin-bottom:6px; }
+.benefit-item{ width:50%; display:flex; align-items:center; }
+.details{ font-size:.7em; display:flex; justify-content:space-between; margin-bottom:8px; }
+.button{ margin:0 auto 10px auto; padding:8px 14px; background:#fff; color:#000; border:2px solid #fff; border-radius:8px;
+         text-align:center; font-size:.78em; font-weight:800; text-transform:uppercase; cursor:pointer;
+         box-shadow:0 2px 5px rgba(0,0,0,.2); transition:transform .2s, box-shadow .2s; display:inline-block; text-decoration:none; }
+.button:hover{ transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,.3); }
+.card-text{ font-size:.84em; line-height:1.35; margin-bottom:8px; }
+
+/* ===== Erros de validação ===== */
+.err .o{ border-color:#d33 !important; box-shadow:0 0 0 2px rgba(211,51,51,.15) inset; }
+.err .t{ font-weight:800; }
+.smallnote{ font-size:10px; color:#0b1220; opacity:.8; }
+.toaster{ position:absolute; left:12px; right:12px; bottom:38px; background:#ffffff; color:#0b1220; border:2px solid #fff; 
+          border-radius:8px; padding:6px 8px; font-size:11px; box-shadow:0 6px 14px rgba(0,0,0,.12); display:none; }
+.toaster.show{ display:block; }
+
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="viewport">
+      <div class="track" id="track">
+
+        <!-- Slide 0 · Card intro idêntico ao original -->
+        <section class="slide">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container">
+              <div>
+                <div class="header"><h1>Pesquisa sobre<br>Empreendedorismo no Paraná</h1></div>
+                <p class="intro"><span class="greeting">Olá! 👋</span><br>Queremos conhecer sua opinião. <strong>Ao final desta pesquisa, você terá acesso a cursos online de alta qualidade sobre:</strong></p>
+                <div class="benefits">
+                  <div class="benefit-item"><span>✅</span>Gestão de negócios</div>
+                  <div class="benefit-item"><span>✅</span>Inovação e tecnologia</div>
+                  <div class="benefit-item"><span>✅</span>Marketing digital</div>
+                  <div class="benefit-item"><span>✅</span>E muito mais!</div>
+                  <div class="benefit-item"><span>✅</span>Finanças empresariais</div>
+                </div>
+                <div class="details">
+                  <div class="detail-item"><span>⏰</span>Rápida (apenas 6 perguntas)</div>
+                  <div class="detail-item"><span>🔒</span>Totalmente anônima</div>
+                </div>
+              </div>
+              <div class="button" data-action="start">QUERO TER ACESSO AOS CURSOS</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slides 1–5 · Perguntas com radios -->
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="1">
+            <div class="header"><div class="step">Pergunta 1 de 6</div><div class="line"></div></div>
+            <div class="q">O Sebrae acompanha as novidades em tecnologia e inovação que realmente importam para os pequenos negócios?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 1">
+              <label class="opt"><input type="radio" name="q1" value="sempre"><span class="o"></span><span class="t">Sim, está sempre atualizado e traz as tendências mais relevantes</span></label>
+              <label class="opt"><input type="radio" name="q1" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes sim, mas às vezes fica um pouco atrasado</span></label>
+              <label class="opt"><input type="radio" name="q1" value="raro"><span class="o"></span><span class="t">Raramente, em geral está desatualizado</span></label>
+              <label class="opt"><input type="radio" name="q1" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
+
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="2">
+            <div class="header"><div class="step">Pergunta 2 de 6</div><div class="line"></div></div>
+            <div class="q">Na sua opinião, o Sebrae promove a diversidade e inclusão em suas ações e comunicação?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 2">
+              <label class="opt"><input type="radio" name="q2" value="sempre"><span class="o"></span><span class="t">Sim, sempre demonstra atenção para diversidade e inclusão</span></label>
+              <label class="opt"><input type="radio" name="q2" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes sim, mas ainda pode melhorar</span></label>
+              <label class="opt"><input type="radio" name="q2" value="raro"><span class="o"></span><span class="t">Raramente vejo essa atenção nas ações do Sebrae</span></label>
+              <label class="opt"><input type="radio" name="q2" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
+
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="3">
+            <div class="header"><div class="step">Pergunta 3 de 6</div><div class="line"></div></div>
+            <div class="q">Como você vê o trabalho do Sebrae quando o assunto é sustentabilidade ambiental nos pequenos negócios?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 3">
+              <label class="opt"><input type="radio" name="q3" value="engajado"><span class="o"></span><span class="t">Está muito engajado e ajuda os negócios a serem mais sustentáveis</span></label>
+              <label class="opt"><input type="radio" name="q3" value="alguma"><span class="o"></span><span class="t">Demonstra alguma atenção, mas poderia fazer mais</span></label>
+              <label class="opt"><input type="radio" name="q3" value="pouco"><span class="o"></span><span class="t">Pouco se envolve com questões ambientais</span></label>
+              <label class="opt"><input type="radio" name="q3" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
+
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="4">
+            <div class="header"><div class="step">Pergunta 4 de 6</div><div class="line"></div></div>
+            <div class="q">Você percebe que o Sebrae valoriza e divulga publicamente o sucesso dos empreendedores que apoia?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 4">
+              <label class="opt"><input type="radio" name="q4" value="sempre"><span class="o"></span><span class="t">Sim, sempre reconhece e divulga os casos de sucesso</span></label>
+              <label class="opt"><input type="radio" name="q4" value="as_vezes"><span class="o"></span><span class="t">Às vezes faz isso, mas poderia dar mais visibilidade</span></label>
+              <label class="opt"><input type="radio" name="q4" value="raro"><span class="o"></span><span class="t">Raramente vejo esse reconhecimento público</span></label>
+              <label class="opt"><input type="radio" name="q4" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
+
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="5">
+            <div class="header"><div class="step">Pergunta 5 de 6</div><div class="line"></div></div>
+            <div class="q">Na sua experiência, o Sebrae consegue ouvir e responder rapidamente quando os empreendedores precisam de ajuda?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 5">
+              <label class="opt"><input type="radio" name="q5" value="muito_agil"><span class="o"></span><span class="t">Sim, é muito ágil para ouvir e responder às demandas</span></label>
+              <label class="opt"><input type="radio" name="q5" value="as_vezes"><span class="o"></span><span class="t">Na maioria das vezes é rápido, mas às vezes demora um pouco</span></label>
+              <label class="opt"><input type="radio" name="q5" value="demora"><span class="o"></span><span class="t">Costuma demorar para responder às necessidades dos empreendedores</span></label>
+              <label class="opt"><input type="radio" name="q5" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
+
+        <!-- Slide 6 · Card (Pergunta 6) – com header igual aos demais e sem barra de navegação -->
+        <section class="slide" data-kind="card">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container" style="padding:12px 14px;">
+              <div class="header"><div class="step">Pergunta 6 de 6</div><div class="line"></div></div>
+              <form class="qform" data-q="6" style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+                <div class="q">Você acha que o Sebrae trabalha bem em parceria com outros órgãos (governo, empresas privadas, ONGs) para fortalecer o ambiente de negócios?</div>
+                <div class="opts" role="radiogroup" aria-label="Pergunta 6">
+                  <label class="opt"><input type="radio" name="q6" value="muitas_parcerias"><span class="o"></span><span class="t">Sim, faz muitas parcerias que realmente ajudam os empreendedores</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="algumas"><span class="o"></span><span class="t">Faz algumas parcerias, mas poderia colaborar mais</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="raramente"><span class="o"></span><span class="t">Raramente vejo essas parcerias acontecendo</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+                </div>
+              </form>
+              <div class="button" data-action="to-thanks">VER MEUS CURSOS GRATUITOS ❤</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 7 · Card Obrigado (link de saída) -->
+        <section class="slide" data-kind="card">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container">
+              <div>
+                <div class="header"><h1>Obrigado por participar da nossa pesquisa!</h1></div>
+                <p class="card-text"><strong>Parabéns!</strong> Você tem acesso livre aos cursos online do site do Sebrae/PR.</p>
+              </div>
+              <a class="button" href="https://sebraepr.com.br/trilhas/home" target="_blank" rel="noopener">ESCOLHER MEU CURSO GRATUITO</a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="bbar" id="bbar">
+      <div class="dots" id="dots"></div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn" id="prev" aria-label="Anterior">←</button>
+        <button class="btn" id="next" aria-label="Próxima">COMEÇAR →</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const track = document.getElementById('track');
+  const slides = Array.from(track.children);
+  const dotsWrap = document.getElementById('dots');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const bbar = document.getElementById('bbar');
+  let i = 0;
+
+  // dots
+  slides.forEach((_, idx) => {
+    const d = document.createElement('i'); d.className='dot'+(idx===0?' act':''); dotsWrap.appendChild(d);
+  });
+
+  function update(){
+    track.style.transform = 'translateX(' + (-i*100) + '%)';
+    Array.from(dotsWrap.children).forEach((d,idx) => d.classList.toggle('act', idx===i));
+    prev.disabled = (i===0);
+    // esconder barra no slide 0 e nos slides tipo "card" (6 e 7)
+    const isCard = slides[i].dataset.kind === 'card' || i===0;
+    bbar.classList.toggle('hidden', isCard);
+    next.textContent = (i===slides.length-1) ? 'REINICIAR' : (i===0 ? 'COMEÇAR →' : 'PRÓXIMA →');
+  }
+
+  prev.addEventListener('click', () => { if(i>0){ i--; update(); } });
+  next.addEventListener('click', () => { if(i<slides.length-1){ i++; } else { i=0; } update(); });
+
+  // Ações dos botões do card
+  document.addEventListener('click', (e) => {
+    const el = e.target;
+    if(!el || !el.classList) return;
+    if(i===0 && el.classList.contains('button') && el.dataset.action==='start'){ i=1; update(); }
+    if(el.classList.contains('button') && el.dataset.action==='to-thanks'){ i = slides.length-1; update(); }
+  });
+
+  // Teclado & touch
+  document.addEventListener('keydown', (e) => { if(e.key==='ArrowLeft' && !prev.disabled) prev.click(); if(e.key==='ArrowRight') next.click(); });
+  let sx=0, dx=0, sw=false;
+  track.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sw=true; }, {passive:true});
+  track.addEventListener('touchmove', e=>{ if(!sw) return; dx=e.touches[0].clientX - sx; }, {passive:true});
+  track.addEventListener('touchend', e=>{ if(!sw) return; sw=false; if(Math.abs(dx)>30){ if(dx<0) next.click(); else prev.click(); } sx=dx=0; }, {passive:true});
+
+  update();
+})();
+</script>
+
+<script>
+// ===== API Integration for survey collection on slide 6 =====
+(function(){
+  // Try to read ?api=<URL> so you can change endpoint without editing file
+  const qs = new URLSearchParams(location.search);
+  const DEFAULT_API_URL = "REPLACE_WITH_YOUR_CLOUD_RUN_URL/collect";
+  const API_URL = qs.get("api") || DEFAULT_API_URL;
+
+  // Utility: UUID v4 (client session)
+  function uuidv4(){
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){
+      const r = crypto.getRandomValues(new Uint8Array(1))[0] & 15;
+      const v = c === "x" ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  const sessionKey = "survey_session_id";
+  let sessionId = localStorage.getItem(sessionKey);
+  if(!sessionId){ sessionId = uuidv4(); localStorage.setItem(sessionKey, sessionId); }
+
+  // Toast helper
+  const toaster = document.createElement("div");
+  toaster.className = "toaster";
+  toaster.setAttribute("role","status");
+  document.querySelector(".stage").appendChild(toaster);
+  function toast(msg, ms){
+    toaster.textContent = msg;
+    toaster.classList.add("show");
+    setTimeout(()=> toaster.classList.remove("show"), ms||1800);
+  }
+
+  // Capture click before the original listener moves to "Obrigado"
+  document.addEventListener("click", async function(e){
+    const el = e.target;
+    if(!el || !el.classList) return;
+    if(el.classList.contains("button") && el.dataset.action === "to-thanks"){
+      // Intercept default navigation to the "thanks" slide until we submit
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      try{
+        const payload = buildPayload();
+        // Validate required answers
+        const missing = []; for(let i=1;i<=6;i++){ if(!payload["q"+i]) missing.push("q"+i); }
+        if(missing.length){
+          toast("Responda todas as perguntas para continuar.");
+          highlightMissing(missing);
+          return;
+        }
+
+        // Send
+        toast("Enviando suas respostas...");
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify(payload),
+          mode: "cors",
+          keepalive: true
+        }).catch(()=>null);
+
+        // Move to "Obrigado" slide regardless of network outcome to keep UX smooth
+        // but keep a small hint for failure (optional).
+        if(!resp || !resp.ok){
+          console.warn("Falha no envio das respostas.");
+          toast("Conexão instável. Tentaremos novamente mais tarde.", 2000);
+        } else {
+          toast("Respostas registradas. Obrigado!");
+        }
+
+        // Programmatically click the original handler target to proceed
+        // Find the existing to-thanks button again and let the default handler run
+        const orig = document.querySelector('.button[data-action="to-thanks"]');
+        if(orig){ orig.removeAttribute("data-skip"); orig.click(); }
+
+      }catch(err){
+        console.error(err);
+        toast("Ocorreu um erro. Tente novamente.", 2000);
+      }
+    }
+  }, true); // capture=true
+
+  // Build payload from selected radios + tracking
+  function buildPayload(){
+    const ans = {};
+    for(let i=1;i<=6;i++){
+      const sel = document.querySelector('input[name="q'+i+'"]:checked');
+      ans["q"+i] = sel ? sel.value : null;
+    }
+
+    // Try to collect some optional attribution via querystring macros
+    // Common macros: utm_campaign, cid, line_item, li, crid, creative_id
+    const extras = {};
+    for(const [k,v] of qs.entries()){
+      if(/^utm_|^gcl|^msclkid|^fbclid|^li(d|ne)?|^cid$|^crid$|^creative_id$/.test(k)) extras[k]=v;
+    }
+
+    const payload = Object.assign({}, ans, {
+      session_id: sessionId,
+      campaign_id: qs.get("campaign") || qs.get("utm_campaign") || qs.get("cid") || null,
+      line_item_id: qs.get("line_item") || qs.get("li") || null,
+      creative_id: qs.get("creative_id") || qs.get("crid") || null,
+      page_url: document.referrer || null,
+      extra: Object.keys(extras).length ? extras : null
+    });
+
+    // Persist locally (non-sensitive) so user can finish depois
+    try{ localStorage.setItem("survey_answers", JSON.stringify(ans)); }catch{}
+    return payload;
+  }
+
+  // Highlight unanswered opts
+  function highlightMissing(missing){
+    missing.forEach(m => {
+      const form = document.querySelector('.qform[data-q="'+m.replace("q","")+'"]');
+      if(form){
+        form.querySelector(".opts")?.classList.add("err");
+        setTimeout(()=> form.querySelector(".opts")?.classList.remove("err"), 1500);
+      }
+    });
+  }
+
+  // Restore previous answers if any
+  try{
+    const saved = JSON.parse(localStorage.getItem("survey_answers")||"{}");
+    for(let i=1;i<=6;i++){
+      const v = saved["q"+i];
+      if(v){
+        const radio = document.querySelector('input[name="q'+i+'"][value="'+CSS.escape(v)+'"]');
+        if(radio){ radio.checked = true; }
+      }
+    }
+  }catch{}
+})();
+</script>
+
+</body>
+</html>
