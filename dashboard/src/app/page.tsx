@@ -38,7 +38,7 @@ interface DashboardData {
   systemStatus: string;
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+const COLORS = ['#A855F7', '#F97316', '#10B981', '#EF4444', '#8B5CF6', '#06B6D4'];
 
 const questionLabels = {
   q1: 'Tecnologia e Inovação',
@@ -173,7 +173,7 @@ export default function Dashboard() {
   }, [nextUpdate]);
 
   if (loading) {
-    return (
+  return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
@@ -210,36 +210,38 @@ export default function Dashboard() {
   if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-black/20 backdrop-blur-lg border-b border-purple-500/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">SM</span>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-xl">SM</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">South Media</h1>
-                <p className="text-sm text-gray-600">Dashboard de Pesquisa Sebrae</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+                  South Media
+                </h1>
+                <p className="text-purple-300">Dashboard de Pesquisa Sebrae</p>
               </div>
             </div>
             <div className="flex items-center space-x-6">
               <div className="text-right">
-                <p className="text-xs text-gray-500">Última atualização</p>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-xs text-purple-300">Última atualização</p>
+                <p className="text-sm font-medium text-white">
                   {lastUpdate.toLocaleTimeString('pt-BR')}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-purple-400">
                   Próxima em: {timeUntilUpdate}
                 </p>
               </div>
               <button 
                 onClick={fetchData}
-                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300"
+                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-300 shadow-lg"
                 title="Atualizar dados agora"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -249,55 +251,55 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 hover:border-purple-400/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">RESPOSTAS REAIS</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{data.realResponses}</p>
+                <p className="text-sm font-medium text-purple-300">RESPOSTAS REAIS</p>
+                <p className="text-4xl font-bold text-white mt-2">{data.realResponses}</p>
                 {data.testResponses > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-purple-400 mt-1">
                     +{data.testResponses} de teste
                   </p>
                 )}
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-blue-600" />
+              <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Users className="h-7 w-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 hover:border-green-400/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">TAXA DE CONCLUSÃO</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{data.completionRate}%</p>
+                <p className="text-sm font-medium text-green-300">TAXA DE CONCLUSÃO</p>
+                <p className="text-4xl font-bold text-white mt-2">{data.completionRate}%</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+              <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-7 w-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6 hover:border-orange-400/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">TEMPO MÉDIO</p>
-                <p className="text-3xl font-bold text-orange-600 mt-2">~{data.avgTimeMinutes}min</p>
+                <p className="text-sm font-medium text-orange-300">TEMPO MÉDIO</p>
+                <p className="text-4xl font-bold text-white mt-2">~{data.avgTimeMinutes}min</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Clock className="h-6 w-6 text-orange-600" />
+              <div className="w-14 h-14 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center">
+                <Clock className="h-7 w-7 text-white" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 hover:border-blue-400/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">SISTEMA STATUS</p>
-                <p className="text-3xl font-bold text-green-600 mt-2">{data.systemStatus}</p>
+                <p className="text-sm font-medium text-blue-300">SISTEMA STATUS</p>
+                <p className="text-4xl font-bold text-white mt-2">{data.systemStatus}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+              <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <CheckCircle className="h-7 w-7 text-white" />
               </div>
             </div>
           </div>
@@ -306,36 +308,36 @@ export default function Dashboard() {
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Respostas por Hora */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">RESPOSTAS POR HORA</h3>
-              <Activity className="w-5 h-5 text-blue-600" />
+              <h3 className="text-xl font-bold text-white">RESPOSTAS POR HORA</h3>
+              <Activity className="w-6 h-6 text-purple-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={data.hourlyData}>
                 <defs>
                   <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#A855F7" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#A855F7" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis dataKey="hour" stroke="#6B7280" />
-                <YAxis stroke="#6B7280" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis dataKey="hour" stroke="rgba(255,255,255,0.6)" />
+                <YAxis stroke="rgba(255,255,255,0.6)" />
                 <Tooltip 
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '8px',
-                    color: '#374151',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(168,85,247,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                   }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="count" 
-                  stroke="#3B82F6" 
-                  strokeWidth={2}
+                  stroke="#A855F7" 
+                  strokeWidth={3}
                   fillOpacity={1} 
                   fill="url(#colorCount)" 
                 />
@@ -344,10 +346,10 @@ export default function Dashboard() {
           </div>
 
           {/* Dispositivos */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="bg-gradient-to-br from-orange-500/10 to-yellow-500/10 backdrop-blur-lg rounded-2xl border border-orange-500/20 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">DISTRIBUIÇÃO DE DISPOSITIVOS</h3>
-              <Target className="w-5 h-5 text-blue-600" />
+              <h3 className="text-xl font-bold text-white">DISTRIBUIÇÃO DE DISPOSITIVOS</h3>
+              <Target className="w-6 h-6 text-orange-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -367,11 +369,11 @@ export default function Dashboard() {
                 </Pie>
                 <Tooltip 
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
-                    borderRadius: '8px',
-                    color: '#374151',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(251,146,60,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                   }}
                 />
               </PieChart>
@@ -381,12 +383,12 @@ export default function Dashboard() {
 
         {/* Respostas por Pergunta */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">ANÁLISE POR PERGUNTA</h2>
+          <h2 className="text-2xl font-bold text-white mb-8">ANÁLISE POR PERGUNTA</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {Object.entries(questionLabels).map(([question, label], index) => (
-              <div key={question} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6 hover:border-gray-600/50 transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
+                  <h3 className="text-sm font-semibold text-white">{label}</h3>
                   <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
                 </div>
                 <ResponsiveContainer width="100%" height={200}>
@@ -394,29 +396,29 @@ export default function Dashboard() {
                     answer: answerLabels[answer as keyof typeof answerLabels] || answer,
                     count
                   }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis 
                       dataKey="answer" 
                       angle={-45} 
                       textAnchor="end" 
                       height={60} 
-                      stroke="#6B7280"
+                      stroke="rgba(255,255,255,0.6)"
                       fontSize={10}
                     />
-                    <YAxis stroke="#6B7280" />
+                    <YAxis stroke="rgba(255,255,255,0.6)" />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #E5E7EB',
-                        borderRadius: '8px',
-                        color: '#374151',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
                       }}
                     />
                     <Bar 
                       dataKey="count" 
                       fill={COLORS[index % COLORS.length]}
-                      radius={[2, 2, 0, 0]}
+                      radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -426,54 +428,54 @@ export default function Dashboard() {
         </div>
 
         {/* Respostas Recentes */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">DADOS DETALHADOS</h3>
-              <Eye className="w-5 h-5 text-blue-600" />
+              <h3 className="text-xl font-bold text-white">DADOS DETALHADOS</h3>
+              <Eye className="w-6 h-6 text-purple-400" />
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-700/50">
+              <thead className="bg-gray-800/30">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     DATA
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     TECNOLOGIA
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     DIVERSIDADE
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     SUSTENTABILIDADE
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     RECONHECIMENTO
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     AGILIDADE
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
                     PARCERIAS
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-transparent divide-y divide-gray-700/30">
                 {data.responses.slice(0, 10).map((response) => (
-                  <tr key={response.id} className="hover:bg-gray-50 transition-colors duration-200">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <tr key={response.id} className="hover:bg-gray-800/30 transition-colors duration-200">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       {new Date(response.timestamp).toLocaleString('pt-BR')}
                     </td>
                     {Object.values(response.answers).map((answer, index) => (
                       <td key={index} className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                           answer === 'sempre' || answer === 'engajado' || answer === 'muito_agil' || answer === 'muitas_parcerias'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                             : answer === 'maioria' || answer === 'alguma' || answer === 'as_vezes' || answer === 'algumas'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                            : 'bg-red-500/20 text-red-300 border border-red-500/30'
                         }`}>
                           {answerLabels[answer as keyof typeof answerLabels] || answer}
                         </span>
