@@ -42,10 +42,16 @@ NEXT_PUBLIC_API_URL=https://sebrae-survey-api-fs-609095880025.southamerica-east1
 ```
 
 #### Configurações de Build
-- **Node.js Version**: 18.x
-- **Install Command**: `npm install`
-- **Build Command**: `npm run build`
-- **Development Command**: `npm run dev`
+- **Framework Preset**: Next.js (detectado automaticamente)
+- **Root Directory**: `dashboard`
+- **Build Command**: `npm run build` (padrão)
+- **Output Directory**: `.next` (padrão)
+- **Install Command**: `npm install` (padrão)
+
+#### ⚠️ Correções Aplicadas
+- ✅ Removido `--turbopack` dos scripts (incompatível com Vercel)
+- ✅ Simplificado `vercel.json` (removido runtime inválido)
+- ✅ Adicionado `.vercelignore` para otimizar deploy
 
 ### 4. Deploy Automático
 
