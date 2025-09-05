@@ -75,3 +75,48 @@ def collect():
 
     resp = jsonify({"ok": True, "stored": stored, "id": doc_id})
     return _corsify(make_response((resp, 200)))
+
+@app.route("/responses", methods=["GET"])
+def list_responses():
+    """Endpoint temporário para listar respostas"""
+    if not FS_AVAILABLE:
+        return _corsify(make_response((
+            jsonify({"ok": False, "error": "firestore_not_available"}), 500
+        )))
+    
+    try:
+        client = firestore.Client(project=PROJECT_ID) if PROJECT_ID else firestore.Client()
+        docs = client.collection(FS_COLLECTION).order_by('ts', direction=firestore.Query.DESCENDING).limit(10).stream()
+        
+        responses = []
+        for doc in docs:
+            data = doc.to_dict()
+            responses.append({
+                "id": doc.id,
+                "timestamp": data.get("ts"),
+                "session_id": data.get("session_id"),
+                "campaign_id": data.get("campaign_id"),
+                "answers": {
+                    "q1": data.get("q1"),
+                    "q2": data.get("q2"),
+                    "q3": data.get("q3"),
+                    "q4": data.get("q4"),
+                    "q5": data.get("q5"),
+                    "q6": data.get("q6")
+                },
+                "metadata": {
+                    "user_agent": data.get("ua", "")[:100] if data.get("ua") else None,
+                    "referer": data.get("referer"),
+                    "origin": data.get("origin"),
+                    "page_url": data.get("page_url")
+                }
+            })
+        
+        return _corsify(make_response((
+            jsonify({"ok": True, "count": len(responses), "responses": responses}), 200
+        )))
+        
+    except Exception as e:
+        return _corsify(make_response((
+            jsonify({"ok": False, "error": str(e)}), 500
+        )))

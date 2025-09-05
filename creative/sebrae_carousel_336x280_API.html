@@ -266,7 +266,7 @@ label.opt .t{ flex:1; }
 (function(){
   // Try to read ?api=<URL> so you can change endpoint without editing file
   const qs = new URLSearchParams(location.search);
-  const DEFAULT_API_URL = "REPLACE_WITH_YOUR_CLOUD_RUN_URL/collect";
+  const DEFAULT_API_URL = "https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/collect";
   const API_URL = qs.get("api") || DEFAULT_API_URL;
 
   // Utility: UUID v4 (client session)
@@ -281,6 +281,9 @@ label.opt .t{ flex:1; }
   const sessionKey = "survey_session_id";
   let sessionId = localStorage.getItem(sessionKey);
   if(!sessionId){ sessionId = uuidv4(); localStorage.setItem(sessionKey, sessionId); }
+  
+  // Flag to prevent multiple submissions
+  let isSubmitting = false;
 
   // Toast helper
   const toaster = document.createElement("div");
@@ -298,9 +301,19 @@ label.opt .t{ flex:1; }
     const el = e.target;
     if(!el || !el.classList) return;
     if(el.classList.contains("button") && el.dataset.action === "to-thanks"){
+      // Prevent multiple submissions
+      if(isSubmitting) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+      
       // Intercept default navigation to the "thanks" slide until we submit
       e.preventDefault();
       e.stopImmediatePropagation();
+      
+      // Set submitting flag
+      isSubmitting = true;
 
       try{
         const payload = buildPayload();
@@ -309,6 +322,7 @@ label.opt .t{ flex:1; }
         if(missing.length){
           toast("Responda todas as perguntas para continuar.");
           highlightMissing(missing);
+          isSubmitting = false; // Reset flag
           return;
         }
 
@@ -331,14 +345,22 @@ label.opt .t{ flex:1; }
           toast("Respostas registradas. Obrigado!");
         }
 
-        // Programmatically click the original handler target to proceed
-        // Find the existing to-thanks button again and let the default handler run
-        const orig = document.querySelector('.button[data-action="to-thanks"]');
-        if(orig){ orig.removeAttribute("data-skip"); orig.click(); }
+        // Move to the "Obrigado" slide directly without triggering another click
+        // Find the track and move to the last slide (index 7)
+        const track = document.getElementById('track');
+        if(track){
+          track.style.transform = 'translateX(-700%)'; // Move to slide 7 (last slide)
+          // Update dots and navigation
+          const dots = document.querySelectorAll('.dot');
+          dots.forEach((dot, idx) => dot.classList.toggle('act', idx === 7));
+          const bbar = document.getElementById('bbar');
+          if(bbar) bbar.classList.add('hidden');
+        }
 
       }catch(err){
         console.error(err);
         toast("Ocorreu um erro. Tente novamente.", 2000);
+        isSubmitting = false; // Reset flag on error
       }
     }
   }, true); // capture=true
