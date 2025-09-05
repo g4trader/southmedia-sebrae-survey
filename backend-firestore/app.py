@@ -78,7 +78,7 @@ def collect():
 
 @app.route("/responses", methods=["GET"])
 def list_responses():
-    """Endpoint temporário para listar respostas"""
+    """Endpoint para listar todas as respostas coletadas"""
     if not FS_AVAILABLE:
         return _corsify(make_response((
             jsonify({"ok": False, "error": "firestore_not_available"}), 500
@@ -86,7 +86,7 @@ def list_responses():
     
     try:
         client = firestore.Client(project=PROJECT_ID) if PROJECT_ID else firestore.Client()
-        docs = client.collection(FS_COLLECTION).order_by('ts', direction=firestore.Query.DESCENDING).limit(10).stream()
+        docs = client.collection(FS_COLLECTION).order_by('ts', direction=firestore.Query.DESCENDING).stream()
         
         responses = []
         for doc in docs:
