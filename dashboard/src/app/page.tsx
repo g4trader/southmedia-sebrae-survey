@@ -72,6 +72,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [nextUpdate, setNextUpdate] = useState<Date>(new Date(Date.now() + 300000));
+  const [timeUntilUpdate, setTimeUntilUpdate] = useState<string>('5:00');
 
   const fetchData = async () => {
     try {
@@ -124,6 +126,7 @@ export default function Dashboard() {
       });
 
       setLastUpdate(new Date());
+      setNextUpdate(new Date(Date.now() + 300000)); // Próxima atualização em 5 minutos
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -133,9 +136,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Atualizar a cada 30 segundos
+    const interval = setInterval(fetchData, 300000); // Atualizar a cada 5 minutos (300000ms)
     return () => clearInterval(interval);
   }, []);
+
+  // Contador regressivo para próxima atualização
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const diff = nextUpdate.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        setTimeUntilUpdate(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+      } else {
+        setTimeUntilUpdate('0:00');
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [nextUpdate]);
 
   if (loading) {
     return (
@@ -188,7 +209,7 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
                   Dashboard Sebrae
                 </h1>
-                <p className="text-white/70">Acompanhamento em tempo real das respostas</p>
+                <p className="text-white/70">Acompanhamento das respostas (atualização a cada 5 min)</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -197,11 +218,14 @@ export default function Dashboard() {
                 <p className="text-sm font-medium text-white">
                   {lastUpdate.toLocaleTimeString('pt-BR')}
                 </p>
+                <p className="text-xs text-white/50">
+                  Próxima em: {timeUntilUpdate}
+                </p>
               </div>
               <button 
                 onClick={fetchData}
                 className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300"
-                title="Atualizar dados"
+                title="Atualizar dados agora"
               >
                 <RefreshCw className="w-5 h-5 text-white" />
               </button>
