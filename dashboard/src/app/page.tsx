@@ -27,6 +27,8 @@ interface SurveyResponse {
 
 interface DashboardData {
   totalResponses: number;
+  realResponses: number;
+  testResponses: number;
   responses: SurveyResponse[];
   questionStats: Record<string, Record<string, number>>;
   hourlyData: Array<{ hour: string; count: number }>;
@@ -79,8 +81,14 @@ export default function Dashboard() {
       const result = await response.json();
       if (!result.ok) throw new Error(result.error || 'Erro na API');
 
-      // Processar dados
-      const responses = result.responses;
+      // Processar dados - filtrar apenas respostas reais (não de teste)
+      const allResponses = result.responses;
+      const responses = allResponses.filter((response: SurveyResponse) => {
+        // Excluir respostas de teste
+        const campaignId = response.campaign_id;
+        return !campaignId || !campaignId.toLowerCase().includes('test');
+      });
+      
       const questionStats: Record<string, Record<string, number>> = {};
       const hourlyData: Record<string, number> = {};
       const deviceStats: Record<string, number> = {};
@@ -119,7 +127,9 @@ export default function Dashboard() {
       const systemStatus = 'ONLINE';
 
       setData({
-        totalResponses: responses.length,
+        totalResponses: allResponses.length,
+        realResponses: responses.length,
+        testResponses: allResponses.length - responses.length,
         responses,
         questionStats,
         hourlyData: Object.entries(hourlyData).map(([hour, count]) => ({ hour, count })),
@@ -242,8 +252,13 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">TOTAL DE RESPOSTAS</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{data.totalResponses}</p>
+                <p className="text-sm font-medium text-gray-600">RESPOSTAS REAIS</p>
+                <p className="text-3xl font-bold text-gray-900 mt-2">{data.realResponses}</p>
+                {data.testResponses > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    +{data.testResponses} de teste
+                  </p>
+                )}
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Users className="h-6 w-6 text-blue-600" />
