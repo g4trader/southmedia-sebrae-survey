@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
-import { Users, TrendingUp, Clock, CheckCircle, Activity, Target, RefreshCw, Eye, Calendar, Award, BarChart3 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
+import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3 } from 'lucide-react';
 
 interface SurveyResponse {
   id: string;
@@ -101,7 +101,7 @@ export default function DashboardV2() {
   const targetPerAudience = 1500;
   const campaignStartDate = new Date('2025-09-01'); // Assumindo início em setembro
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const response = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses');
       if (!response.ok) throw new Error('Erro ao buscar dados');
@@ -117,8 +117,8 @@ export default function DashboardV2() {
       });
 
       // Separar por público (simulando dados - em produção viria do campo audience_type)
-      const smallBusinessResponses = responses.filter((_, index) => index % 2 === 0);
-      const generalPublicResponses = responses.filter((_, index) => index % 2 === 1);
+      const smallBusinessResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 0);
+      const generalPublicResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 1);
 
       // Adicionar audience_type simulado
       const responsesWithAudience = responses.map((response: SurveyResponse, index: number) => ({
@@ -204,7 +204,7 @@ export default function DashboardV2() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [campaignEndDate, campaignStartDate]);
 
   const calculateDailyData = (responses: SurveyResponse[], startDate: Date, endDate: Date, targetPerAudience: number) => {
     const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -266,7 +266,7 @@ export default function DashboardV2() {
     fetchData();
     const interval = setInterval(fetchData, 300000); // Atualizar a cada 5 minutos
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   if (loading) {
     return (
