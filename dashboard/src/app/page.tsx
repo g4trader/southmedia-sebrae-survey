@@ -110,7 +110,6 @@ export default function Dashboard() {
         return !isTest;
       });
       console.log('Filtered responses:', responses.length);
-      console.log('Test responses filtered out:', allResponses.length - responses.length);
       
       const questionStats: Record<string, Record<string, number>> = {};
       const hourlyData: Record<string, number> = {};
