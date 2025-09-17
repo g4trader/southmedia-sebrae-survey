@@ -156,7 +156,7 @@ export default function Dashboard() {
       const systemStatus = 'ONLINE';
 
       setData({
-        totalResponses: allResponses.length,
+        totalResponses: responses.length,
         realResponses: responses.length,
         testResponses: allResponses.length - responses.length,
         responses,
