@@ -142,7 +142,7 @@ export default function DashboardV2() {
       if (!responseV1.ok) throw new Error('Erro ao buscar dados V1');
       
       // Buscar dados da API V2 (dados segmentados)
-      const responseV2 = await fetch('https://sebrae-survey-api-v2-xxx.run.app/responses');
+      const responseV2 = await fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/responses');
       if (!responseV2.ok) throw new Error('Erro ao buscar dados V2');
       
       const dataV1 = await responseV1.json();
