@@ -269,7 +269,12 @@ label.opt .t{ flex:1; }
         audience_type: AUDIENCE_TYPE,
         session_id: generateSessionId(),
         campaign_id: 'sebrae_survey_v2_sociedade',
-        page_url: window.location.href
+        metadata: {
+          user_agent: navigator.userAgent,
+          referer: document.referrer,
+          origin: window.location.origin,
+          page_url: window.location.href
+        }
       };
       
       fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/collect', {
