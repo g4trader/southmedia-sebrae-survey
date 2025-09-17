@@ -1,0 +1,2 @@
+Teste de deploy - $(date)
+Este arquivo foi criado para forçar o redeploy no Vercel.
