@@ -77,22 +77,17 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      console.log('Iniciando fetchData...');
       // Buscar dados de ambas as APIs (V1 e V2)
       const [responseV1, responseV2] = await Promise.all([
         fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses'),
         fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/responses')
       ]);
       
-      console.log('APIs respondidas:', { v1: responseV1.ok, v2: responseV2.ok });
-      
       if (!responseV1.ok) throw new Error('Erro ao buscar dados da API V1');
       if (!responseV2.ok) throw new Error('Erro ao buscar dados da API V2');
       
       const resultV1 = await responseV1.json();
       const resultV2 = await responseV2.json();
-      
-      console.log('Dados recebidos:', { v1: resultV1, v2: resultV2 });
       
       if (!resultV1.ok) throw new Error(resultV1.error || 'Erro na API V1');
       if (!resultV2.ok) throw new Error(resultV2.error || 'Erro na API V2');
