@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=336, initial-scale=1">
-<title>SEBRAE · Carrossel 336×280 - SOCIEDADE</title>
+<title>SEBRAE · Carrossel 336×280 (SOCIEDADE)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%}
@@ -45,157 +45,165 @@ label.opt .t{ flex:1; }
       box-shadow:0 2px 0 rgba(0,0,0,.06),0 6px 14px rgba(0,0,0,.12);display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none; }
 .btn[disabled]{ opacity:.6; cursor:not-allowed; }
 
-/* ===== Layout "card container" (slides 0, 6, 7) ===== */
+/* ===== Layout “card container” (slides 0, 6, 7) ===== */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 .container{
-  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:20px; text-align:center;
-  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff;
+  width:336px;height:280px;padding:14px 15px;background:linear-gradient(to top right,#a0e9c1 0%,#83d4d9 52%,#67b9f6 100%);
+  color:#000;border-radius:15px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 15px rgba(0,0,0,.2);
 }
-.container h1{ font-family:'Roboto', sans-serif; font-weight:700; font-size:18px; line-height:1.2; margin:0; }
-.container p{ font-size:12px; line-height:1.4; opacity:.9; margin:0; }
-.container .button{ background:#fff; color:#667eea; font-weight:700; font-size:12px; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; user-select:none; }
+.container .header h1{ font-size:1.06em; font-weight:700; line-height:1.2; margin:0 0 6px 0; }
+.intro{ font-size:.7em; margin-bottom:6px; }
+.benefits{ display:flex; flex-wrap:wrap; font-size:.7em; gap:2px 0; margin-bottom:6px; }
+.benefit-item{ width:50%; display:flex; align-items:center; }
+.details{ font-size:.7em; display:flex; justify-content:space-between; margin-bottom:8px; }
+.button{ margin:0 auto 10px auto; padding:8px 14px; background:#fff; color:#000; border:2px solid #fff; border-radius:8px;
+         text-align:center; font-size:.78em; font-weight:800; text-transform:uppercase; cursor:pointer;
+         box-shadow:0 2px 5px rgba(0,0,0,.2); transition:transform .2s, box-shadow .2s; display:inline-block; text-decoration:none; }
+.button:hover{ transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,.3); }
+.card-text{ font-size:.84em; line-height:1.35; margin-bottom:8px; }
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="viewport">
-    <div class="track" id="track">
-      <!-- Slide 0: Intro -->
-      <div class="slide" data-kind="card">
-        <div class="container">
-          <h1>Pesquisa Sebrae</h1>
-          <p>Para a sociedade em geral</p>
-          <button class="button" data-action="start">Participar</button>
-        </div>
-      </div>
+  <div class="stage">
+    <div class="viewport">
+      <div class="track" id="track">
 
-      <!-- Slide 1: Q1 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">1/6</span>
-            <div class="line"></div>
+        <!-- Slide 0 · Card intro idêntico ao original -->
+        <section class="slide">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container">
+              <div>
+                <div class="header"><h1>Pesquisa sobre<br>Empreendedorismo no Paraná</h1></div>
+                <p class="intro"><span class="greeting">Olá! 👋</span><br>Queremos conhecer sua opinião. <strong>Ao final desta pesquisa, você terá acesso a cursos online de alta qualidade sobre:</strong></p>
+                <div class="benefits">
+                  <div class="benefit-item"><span>✅</span>Gestão de negócios</div>
+                  <div class="benefit-item"><span>✅</span>Inovação e tecnologia</div>
+                  <div class="benefit-item"><span>✅</span>Marketing digital</div>
+                  <div class="benefit-item"><span>✅</span>E muito mais!</div>
+                  <div class="benefit-item"><span>✅</span>Finanças empresariais</div>
+                </div>
+                <div class="details">
+                  <div class="detail-item"><span>⏰</span>Rápida (apenas 6 perguntas)</div>
+                  <div class="detail-item"><span>🔒</span>Totalmente anônima</div>
+                </div>
+              </div>
+              <div class="button" data-action="start">QUERO TER ACESSO AOS CURSOS</div>
+            </div>
           </div>
-          <div class="q">O Sebrae acompanha as novidades em tecnologia?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q1" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
-            <label class="opt"><input type="radio" name="q1" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes</span></label>
-            <label class="opt"><input type="radio" name="q1" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
-            <label class="opt"><input type="radio" name="q1" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Slide 2: Q2 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">2/6</span>
-            <div class="line"></div>
-          </div>
-          <div class="q">O Sebrae promove diversidade e inclusão?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q2" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
-            <label class="opt"><input type="radio" name="q2" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes</span></label>
-            <label class="opt"><input type="radio" name="q2" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
-            <label class="opt"><input type="radio" name="q2" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        <!-- Slides 1–5 · Perguntas com radios -->
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="1">
+            <div class="header"><div class="step">Pergunta 1 de 6</div><div class="line"></div></div>
+            <div class="q">O Sebrae acompanha as novidades em tecnologia e inovação que realmente importam para os pequenos negócios?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 1">
+              <label class="opt"><input type="radio" name="q1" value="sempre"><span class="o"></span><span class="t">Sim, está sempre atualizado e traz as tendências mais relevantes</span></label>
+              <label class="opt"><input type="radio" name="q1" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes sim, mas às vezes fica um pouco atrasado</span></label>
+              <label class="opt"><input type="radio" name="q1" value="raro"><span class="o"></span><span class="t">Raramente, em geral está desatualizado</span></label>
+              <label class="opt"><input type="radio" name="q1" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
 
-      <!-- Slide 3: Q3 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">3/6</span>
-            <div class="line"></div>
-          </div>
-          <div class="q">Como você vê o trabalho do Sebrae em sustentabilidade?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q3" value="engajado"><span class="o"></span><span class="t">Muito engajado</span></label>
-            <label class="opt"><input type="radio" name="q3" value="alguma"><span class="o"></span><span class="t">Alguma preocupação</span></label>
-            <label class="opt"><input type="radio" name="q3" value="pouco"><span class="o"></span><span class="t">Pouco engajado</span></label>
-            <label class="opt"><input type="radio" name="q3" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="2">
+            <div class="header"><div class="step">Pergunta 2 de 6</div><div class="line"></div></div>
+            <div class="q">Na sua opinião, o Sebrae promove a diversidade e inclusão em suas ações e comunicação?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 2">
+              <label class="opt"><input type="radio" name="q2" value="sempre"><span class="o"></span><span class="t">Sim, sempre demonstra atenção para diversidade e inclusão</span></label>
+              <label class="opt"><input type="radio" name="q2" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes sim, mas ainda pode melhorar</span></label>
+              <label class="opt"><input type="radio" name="q2" value="raro"><span class="o"></span><span class="t">Raramente vejo essa atenção nas ações do Sebrae</span></label>
+              <label class="opt"><input type="radio" name="q2" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
 
-      <!-- Slide 4: Q4 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">4/6</span>
-            <div class="line"></div>
-          </div>
-          <div class="q">O Sebrae valoriza e divulga sucessos?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q4" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
-            <label class="opt"><input type="radio" name="q4" value="as_vezes"><span class="o"></span><span class="t">Às vezes</span></label>
-            <label class="opt"><input type="radio" name="q4" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
-            <label class="opt"><input type="radio" name="q4" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="3">
+            <div class="header"><div class="step">Pergunta 3 de 6</div><div class="line"></div></div>
+            <div class="q">Como você vê o trabalho do Sebrae quando o assunto é sustentabilidade ambiental nos pequenos negócios?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 3">
+              <label class="opt"><input type="radio" name="q3" value="engajado"><span class="o"></span><span class="t">Está muito engajado e ajuda os negócios a serem mais sustentáveis</span></label>
+              <label class="opt"><input type="radio" name="q3" value="alguma"><span class="o"></span><span class="t">Demonstra alguma atenção, mas poderia fazer mais</span></label>
+              <label class="opt"><input type="radio" name="q3" value="pouco"><span class="o"></span><span class="t">Pouco se envolve com questões ambientais</span></label>
+              <label class="opt"><input type="radio" name="q3" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
 
-      <!-- Slide 5: Q5 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">5/6</span>
-            <div class="line"></div>
-          </div>
-          <div class="q">O Sebrae responde rapidamente às demandas?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q5" value="muito_agil"><span class="o"></span><span class="t">Muito ágil</span></label>
-            <label class="opt"><input type="radio" name="q5" value="as_vezes"><span class="o"></span><span class="t">Às vezes</span></label>
-            <label class="opt"><input type="radio" name="q5" value="demora"><span class="o"></span><span class="t">Demora</span></label>
-            <label class="opt"><input type="radio" name="q5" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="4">
+            <div class="header"><div class="step">Pergunta 4 de 6</div><div class="line"></div></div>
+            <div class="q">Você percebe que o Sebrae valoriza e divulga publicamente o sucesso dos empreendedores que apoia?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 4">
+              <label class="opt"><input type="radio" name="q4" value="sempre"><span class="o"></span><span class="t">Sim, sempre reconhece e divulga os casos de sucesso</span></label>
+              <label class="opt"><input type="radio" name="q4" value="as_vezes"><span class="o"></span><span class="t">Às vezes faz isso, mas poderia dar mais visibilidade</span></label>
+              <label class="opt"><input type="radio" name="q4" value="raro"><span class="o"></span><span class="t">Raramente vejo esse reconhecimento público</span></label>
+              <label class="opt"><input type="radio" name="q4" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
 
-      <!-- Slide 6: Q6 -->
-      <div class="slide">
-        <div class="gradient"></div>
-        <div class="inner">
-          <div class="header">
-            <span class="step">6/6</span>
-            <div class="line"></div>
-          </div>
-          <div class="q">O Sebrae trabalha bem em parceria?</div>
-          <div class="opts">
-            <label class="opt"><input type="radio" name="q6" value="muitas_parcerias"><span class="o"></span><span class="t">Muitas parcerias</span></label>
-            <label class="opt"><input type="radio" name="q6" value="algumas"><span class="o"></span><span class="t">Algumas parcerias</span></label>
-            <label class="opt"><input type="radio" name="q6" value="raramente"><span class="o"></span><span class="t">Raramente</span></label>
-            <label class="opt"><input type="radio" name="q6" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
-          </div>
-        </div>
-      </div>
+        <section class="slide"><div class="gradient"></div>
+          <form class="inner qform" data-q="5">
+            <div class="header"><div class="step">Pergunta 5 de 6</div><div class="line"></div></div>
+            <div class="q">Na sua experiência, o Sebrae consegue ouvir e responder rapidamente quando os empreendedores precisam de ajuda?</div>
+            <div class="opts" role="radiogroup" aria-label="Pergunta 5">
+              <label class="opt"><input type="radio" name="q5" value="muito_agil"><span class="o"></span><span class="t">Sim, é muito ágil para ouvir e responder às demandas</span></label>
+              <label class="opt"><input type="radio" name="q5" value="as_vezes"><span class="o"></span><span class="t">Na maioria das vezes é rápido, mas às vezes demora um pouco</span></label>
+              <label class="opt"><input type="radio" name="q5" value="demora"><span class="o"></span><span class="t">Costuma demorar para responder às necessidades dos empreendedores</span></label>
+              <label class="opt"><input type="radio" name="q5" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+        </section>
 
-      <!-- Slide 7: Thanks -->
-      <div class="slide" data-kind="card">
-        <div class="container">
-          <h1>Obrigado!</h1>
-          <p>Sua opinião é muito importante para nós</p>
-          <button class="button" data-action="to-thanks">Finalizar</button>
-        </div>
+        <!-- Slide 6 · Card (Pergunta 6) – com header igual aos demais e sem barra de navegação -->
+        <section class="slide" data-kind="card">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container" style="padding:12px 14px;">
+              <div class="header"><div class="step">Pergunta 6 de 6</div><div class="line"></div></div>
+              <form class="qform" data-q="6" style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+                <div class="q">Você acha que o Sebrae trabalha bem em parceria com outros órgãos (governo, empresas privadas, ONGs) para fortalecer o ambiente de negócios?</div>
+                <div class="opts" role="radiogroup" aria-label="Pergunta 6">
+                  <label class="opt"><input type="radio" name="q6" value="muitas_parcerias"><span class="o"></span><span class="t">Sim, faz muitas parcerias que realmente ajudam os empreendedores</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="algumas"><span class="o"></span><span class="t">Faz algumas parcerias, mas poderia colaborar mais</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="raramente"><span class="o"></span><span class="t">Raramente vejo essas parcerias acontecendo</span></label>
+                  <label class="opt"><input type="radio" name="q6" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+                </div>
+              </form>
+              <div class="button" data-action="to-thanks">VER MEUS CURSOS GRATUITOS ❤</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 7 · Card Obrigado (link de saída) -->
+        <section class="slide" data-kind="card">
+          <div class="gradient"></div>
+          <div style="position:absolute; inset:0;">
+            <div class="container">
+              <div>
+                <div class="header"><h1>Obrigado por participar da nossa pesquisa!</h1></div>
+                <p class="card-text"><strong>Parabéns!</strong> Você tem acesso livre aos cursos online do site do Sebrae/PR.</p>
+              </div>
+              <a class="button" href="https://sebraepr.com.br/trilhas/home" target="_blank" rel="noopener">ESCOLHER MEU CURSO GRATUITO</a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="bbar" id="bbar">
+      <div class="dots" id="dots"></div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn" id="prev" aria-label="Anterior">←</button>
+        <button class="btn" id="next" aria-label="Próxima">COMEÇAR →</button>
       </div>
     </div>
   </div>
-
-  <div class="bbar" id="bbar">
-    <div class="dots" id="dots"></div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <button class="btn" id="prev" aria-label="Anterior">←</button>
-      <button class="btn" id="next" aria-label="Próxima">COMEÇAR →</button>
-    </div>
-  </div>
-</div>
 
 <script>
 (function(){
@@ -219,6 +227,7 @@ label.opt .t{ flex:1; }
     track.style.transform = 'translateX(' + (-i*100) + '%)';
     Array.from(dotsWrap.children).forEach((d,idx) => d.classList.toggle('act', idx===i));
     prev.disabled = (i===0);
+    // esconder barra no slide 0 e nos slides tipo "card" (6 e 7)
     const isCard = slides[i].dataset.kind === 'card' || i===0;
     bbar.classList.toggle('hidden', isCard);
     next.textContent = (i===slides.length-1) ? 'REINICIAR' : (i===0 ? 'COMEÇAR →' : 'PRÓXIMA →');
@@ -233,7 +242,6 @@ label.opt .t{ flex:1; }
     if(!el || !el.classList) return;
     if(i===0 && el.classList.contains('button') && el.dataset.action==='start'){ i=1; update(); }
     if(el.classList.contains('button') && el.dataset.action==='to-thanks'){ 
-      // Enviar dados para API V2
       sendData();
       i = slides.length-1; 
       update(); 
@@ -264,7 +272,7 @@ label.opt .t{ flex:1; }
         page_url: window.location.href
       };
       
-      fetch('https://sebrae-survey-api-v2-xxx.run.app/collect', {
+      fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)

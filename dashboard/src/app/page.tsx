@@ -9,6 +9,7 @@ interface SurveyResponse {
   timestamp: string;
   session_id: string;
   campaign_id: string | null;
+  audience_type?: string; // Campo para segmentação de público
   answers: {
     q1: string;
     q2: string;
@@ -33,6 +34,7 @@ interface DashboardData {
   questionStats: Record<string, Record<string, number>>;
   hourlyData: Array<{ hour: string; count: number }>;
   deviceStats: Record<string, number>;
+  audienceStats: Record<string, number>; // Estatísticas por público
   completionRate: number;
   avgTimeMinutes: number;
   systemStatus: string;
@@ -75,14 +77,26 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses');
-      if (!response.ok) throw new Error('Erro ao buscar dados');
+      // Buscar dados de ambas as APIs (V1 e V2)
+      const [responseV1, responseV2] = await Promise.all([
+        fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses'),
+        fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/responses')
+      ]);
       
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error || 'Erro na API');
+      if (!responseV1.ok) throw new Error('Erro ao buscar dados da API V1');
+      if (!responseV2.ok) throw new Error('Erro ao buscar dados da API V2');
+      
+      const resultV1 = await responseV1.json();
+      const resultV2 = await responseV2.json();
+      
+      if (!resultV1.ok) throw new Error(resultV1.error || 'Erro na API V1');
+      if (!resultV2.ok) throw new Error(resultV2.error || 'Erro na API V2');
 
-      // Processar dados - filtrar apenas respostas reais (não de teste)
-      const allResponses = result.responses;
+      // Combinar dados de ambas as APIs
+      const allResponses = [
+        ...(resultV1.responses || []),
+        ...(resultV2.responses || [])
+      ];
       const responses = allResponses.filter((response: SurveyResponse) => {
         // Excluir respostas de teste
         const campaignId = response.campaign_id;
@@ -92,6 +106,7 @@ export default function Dashboard() {
       const questionStats: Record<string, Record<string, number>> = {};
       const hourlyData: Record<string, number> = {};
       const deviceStats: Record<string, number> = {};
+      const audienceStats: Record<string, number> = {};
 
       // Inicializar estatísticas
       Object.keys(questionLabels).forEach(q => {
@@ -119,6 +134,12 @@ export default function Dashboard() {
         else if (userAgent.includes('Tablet')) device = 'Tablet';
         
         deviceStats[device] = (deviceStats[device] || 0) + 1;
+
+        // Estatísticas por público
+        const audienceType = response.audience_type || 'geral';
+        const audienceLabel = audienceType === 'small_business' ? 'Pequenos Negócios' : 
+                             audienceType === 'general_public' ? 'Sociedade' : 'Geral';
+        audienceStats[audienceLabel] = (audienceStats[audienceLabel] || 0) + 1;
       });
 
       // Calcular métricas dinâmicas
@@ -134,6 +155,7 @@ export default function Dashboard() {
         questionStats,
         hourlyData: Object.entries(hourlyData).map(([hour, count]) => ({ hour, count })),
         deviceStats,
+        audienceStats,
         completionRate,
         avgTimeMinutes,
         systemStatus
@@ -378,6 +400,47 @@ export default function Dashboard() {
                 />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Segmentação por Público */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-8">SEGMENTAÇÃO POR PÚBLICO</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6 hover:border-gray-600/50 transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Distribuição por Público</h3>
+                <Users className="w-6 h-6 text-blue-400" />
+              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={Object.entries(data.audienceStats).map(([audience, count]) => ({ audience, count }))}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ audience, count, percent }) => `${audience}: ${count} (${(percent * 100).toFixed(0)}%)`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="count"
+                  >
+                    {Object.entries(data.audienceStats).map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [value, 'Respostas']}
+                    labelStyle={{ color: '#000' }}
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(0,0,0,0.8)', 
+                      border: '1px solid #333',
+                      borderRadius: '8px',
+                      color: '#fff'
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
