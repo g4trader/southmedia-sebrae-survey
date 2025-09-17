@@ -137,14 +137,24 @@ export default function DashboardV2() {
 
   const fetchData = useCallback(async () => {
     try {
-      const response = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses');
-      if (!response.ok) throw new Error('Erro ao buscar dados');
+      // Buscar dados da API V1 (dados gerais)
+      const responseV1 = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses');
+      if (!responseV1.ok) throw new Error('Erro ao buscar dados V1');
       
-      const result = await response.json();
-      if (!result.ok) throw new Error(result.error || 'Erro na API');
-
-      // Processar dados
-      const allResponses = result.responses;
+      // Buscar dados da API V2 (dados segmentados)
+      const responseV2 = await fetch('https://sebrae-survey-api-v2-xxx.run.app/responses');
+      if (!responseV2.ok) throw new Error('Erro ao buscar dados V2');
+      
+      const dataV1 = await responseV1.json();
+      const dataV2 = await responseV2.json();
+      
+      // Combinar dados das duas APIs
+      const allResponses = [
+        ...(dataV1.responses || []).map((r: any) => ({ ...r, audience_type: 'all' })),
+        ...(dataV2.responses || [])
+      ];
+      
+      // Processar dados combinados
       const responses = allResponses.filter((response: SurveyResponse) => {
         const campaignId = response.campaign_id;
         return !campaignId || !campaignId.toLowerCase().includes('test');

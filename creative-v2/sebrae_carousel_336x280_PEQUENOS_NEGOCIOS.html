@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=336, initial-scale=1">
+<title>SEBRAE · Carrossel 336×280 - PEQUENOS NEGÓCIOS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+  width:336px;height:280px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans";
+  color:#0b1220;
+}
+.stage{ width:336px;height:280px;border-radius:12px;overflow:hidden;background:#e9eef3;position:relative; }
+.viewport{ position:absolute; inset:0; overflow:hidden; }
+.track{ display:flex; width:100%; height:100%; transition: transform .24s ease; }
+.slide{ flex:0 0 100%; display:block; height:100%; position:relative; }
+.gradient{ position:absolute; inset:0; background:linear-gradient(to top right,#a0e9c1 0%,#83d4d9 52%,#67b9f6 100%); }
+
+/* ===== Perguntas (todas) – tamanhos otimizados ===== */
+.inner{ position:absolute; inset:12px 14px; display:flex; flex-direction:column; gap:10px; }
+.header{ display:flex; align-items:center; gap:8px; }
+.header .step{ font-weight:800; font-size:12px; white-space:nowrap; }
+.header .line{ flex:1; height:2px; background:rgba(11,18,32,.45); border-radius:2px; }
+.q{ font-weight:800; font-size:12.5px; line-height:1.3; margin-bottom:2px; }
+
+/* Radios visualmente idênticos, porém mais compactos */
+.opts{ display:flex; flex-direction:column; gap:9px; }
+label.opt{ display:flex; gap:8px; align-items:flex-start; font-size:11px; line-height:1.3; cursor:pointer; user-select:none; }
+label.opt input{ position:absolute; opacity:0; pointer-events:none; }
+label.opt .o{ width:16px;height:16px;border:2px solid rgba(11,18,32,.65);border-radius:999px;flex:0 0 16px; position:relative; margin-top:1px; }
+label.opt .o::after{ content:""; position:absolute; inset:2px; border-radius:999px; background:#0b1220; transform:scale(0); transition:transform .15s ease; }
+label.opt input:checked + .o::after{ transform:scale(1); }
+label.opt input:focus-visible + .o{ outline:2px solid #0b1220; outline-offset:2px; }
+label.opt .t{ flex:1; }
+
+/* ===== Barra inferior ===== */
+.bbar{ position:absolute; left:10px; right:10px; bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+.bbar.hidden{ display:none; }
+.dots{ display:flex; gap:4px; padding:6px 8px; }
+.dot{ width:6px;height:6px;border-radius:999px;background:#c6d4e4; }
+.dot.act{ background:#0b1220; }
+.btn{ background:#fff;color:#0b1833;font-weight:900;letter-spacing:.2px;font-size:12px;padding:8px 10px;border-radius:8px;border:2px solid #fff;
+      box-shadow:0 2px 0 rgba(0,0,0,.06),0 6px 14px rgba(0,0,0,.12);display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none; }
+.btn[disabled]{ opacity:.6; cursor:not-allowed; }
+
+/* ===== Layout "card container" (slides 0, 6, 7) ===== */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+.container{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:20px; text-align:center;
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff;
+}
+.container h1{ font-family:'Roboto', sans-serif; font-weight:700; font-size:18px; line-height:1.2; margin:0; }
+.container p{ font-size:12px; line-height:1.4; opacity:.9; margin:0; }
+.container .button{ background:#fff; color:#667eea; font-weight:700; font-size:12px; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; user-select:none; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="viewport">
+    <div class="track" id="track">
+      <!-- Slide 0: Intro -->
+      <div class="slide" data-kind="card">
+        <div class="container">
+          <h1>Pesquisa Sebrae</h1>
+          <p>Para donos de pequenos negócios</p>
+          <button class="button" data-action="start">Participar</button>
+        </div>
+      </div>
+
+      <!-- Slide 1: Q1 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">1/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">O Sebrae acompanha as novidades em tecnologia?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q1" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
+            <label class="opt"><input type="radio" name="q1" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes</span></label>
+            <label class="opt"><input type="radio" name="q1" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
+            <label class="opt"><input type="radio" name="q1" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Q2 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">2/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">O Sebrae promove diversidade e inclusão?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q2" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
+            <label class="opt"><input type="radio" name="q2" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes</span></label>
+            <label class="opt"><input type="radio" name="q2" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
+            <label class="opt"><input type="radio" name="q2" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3: Q3 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">3/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">Como você vê o trabalho do Sebrae em sustentabilidade?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q3" value="engajado"><span class="o"></span><span class="t">Muito engajado</span></label>
+            <label class="opt"><input type="radio" name="q3" value="alguma"><span class="o"></span><span class="t">Alguma preocupação</span></label>
+            <label class="opt"><input type="radio" name="q3" value="pouco"><span class="o"></span><span class="t">Pouco engajado</span></label>
+            <label class="opt"><input type="radio" name="q3" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4: Q4 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">4/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">O Sebrae valoriza e divulga sucessos?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q4" value="sempre"><span class="o"></span><span class="t">Sempre</span></label>
+            <label class="opt"><input type="radio" name="q4" value="as_vezes"><span class="o"></span><span class="t">Às vezes</span></label>
+            <label class="opt"><input type="radio" name="q4" value="raro"><span class="o"></span><span class="t">Raramente</span></label>
+            <label class="opt"><input type="radio" name="q4" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Q5 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">5/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">O Sebrae responde rapidamente às demandas?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q5" value="muito_agil"><span class="o"></span><span class="t">Muito ágil</span></label>
+            <label class="opt"><input type="radio" name="q5" value="as_vezes"><span class="o"></span><span class="t">Às vezes</span></label>
+            <label class="opt"><input type="radio" name="q5" value="demora"><span class="o"></span><span class="t">Demora</span></label>
+            <label class="opt"><input type="radio" name="q5" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 6: Q6 -->
+      <div class="slide">
+        <div class="gradient"></div>
+        <div class="inner">
+          <div class="header">
+            <span class="step">6/6</span>
+            <div class="line"></div>
+          </div>
+          <div class="q">O Sebrae trabalha bem em parceria?</div>
+          <div class="opts">
+            <label class="opt"><input type="radio" name="q6" value="muitas_parcerias"><span class="o"></span><span class="t">Muitas parcerias</span></label>
+            <label class="opt"><input type="radio" name="q6" value="algumas"><span class="o"></span><span class="t">Algumas parcerias</span></label>
+            <label class="opt"><input type="radio" name="q6" value="raramente"><span class="o"></span><span class="t">Raramente</span></label>
+            <label class="opt"><input type="radio" name="q6" value="nao_sei"><span class="o"></span><span class="t">Não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: Thanks -->
+      <div class="slide" data-kind="card">
+        <div class="container">
+          <h1>Obrigado!</h1>
+          <p>Sua opinião é muito importante para nós</p>
+          <button class="button" data-action="to-thanks">Finalizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bbar" id="bbar">
+    <div class="dots" id="dots"></div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="btn" id="prev" aria-label="Anterior">←</button>
+      <button class="btn" id="next" aria-label="Próxima">COMEÇAR →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // VARIÁVEL INTERNA DE PÚBLICO
+  const AUDIENCE_TYPE = 'small_business';
+  
+  const track = document.getElementById('track');
+  const slides = Array.from(track.children);
+  const dotsWrap = document.getElementById('dots');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const bbar = document.getElementById('bbar');
+  let i = 0;
+
+  // dots
+  slides.forEach((_, idx) => {
+    const d = document.createElement('i'); d.className='dot'+(idx===0?' act':''); dotsWrap.appendChild(d);
+  });
+
+  function update(){
+    track.style.transform = 'translateX(' + (-i*100) + '%)';
+    Array.from(dotsWrap.children).forEach((d,idx) => d.classList.toggle('act', idx===i));
+    prev.disabled = (i===0);
+    const isCard = slides[i].dataset.kind === 'card' || i===0;
+    bbar.classList.toggle('hidden', isCard);
+    next.textContent = (i===slides.length-1) ? 'REINICIAR' : (i===0 ? 'COMEÇAR →' : 'PRÓXIMA →');
+  }
+
+  prev.addEventListener('click', () => { if(i>0){ i--; update(); } });
+  next.addEventListener('click', () => { if(i<slides.length-1){ i++; } else { i=0; } update(); });
+
+  // Ações dos botões do card
+  document.addEventListener('click', (e) => {
+    const el = e.target;
+    if(!el || !el.classList) return;
+    if(i===0 && el.classList.contains('button') && el.dataset.action==='start'){ i=1; update(); }
+    if(el.classList.contains('button') && el.dataset.action==='to-thanks'){ 
+      // Enviar dados para API V2
+      sendData();
+      i = slides.length-1; 
+      update(); 
+    }
+  });
+
+  // Função para enviar dados
+  function sendData() {
+    const answers = {};
+    let allAnswered = true;
+    
+    for(let q = 1; q <= 6; q++) {
+      const selected = document.querySelector(`input[name="q${q}"]:checked`);
+      if(selected) {
+        answers[`q${q}`] = selected.value;
+      } else {
+        allAnswered = false;
+        break;
+      }
+    }
+    
+    if(allAnswered) {
+      const data = {
+        ...answers,
+        audience_type: AUDIENCE_TYPE,
+        session_id: generateSessionId(),
+        campaign_id: 'sebrae_survey_v2_pequenos_negocios',
+        page_url: window.location.href
+      };
+      
+      fetch('https://sebrae-survey-api-v2-xxx.run.app/collect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(err => console.log('Erro ao enviar:', err));
+    }
+  }
+  
+  function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  // Teclado & touch
+  document.addEventListener('keydown', (e) => { if(e.key==='ArrowLeft' && !prev.disabled) prev.click(); if(e.key==='ArrowRight') next.click(); });
+  let sx=0, dx=0, sw=false;
+  track.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sw=true; }, {passive:true});
+  track.addEventListener('touchmove', e=>{ if(!sw) return; dx=e.touches[0].clientX - sx; }, {passive:true});
+  track.addEventListener('touchend', e=>{ if(!sw) return; sw=false; if(Math.abs(dx)>30){ if(dx<0) next.click(); else prev.click(); } sx=dx=0; }, {passive:true});
+
+  update();
+})();
+</script>
+</body>
+</html>
