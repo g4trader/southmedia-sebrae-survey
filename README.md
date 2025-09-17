@@ -6,4 +6,4 @@ Este repositório contém:
 - **creative/**: peças de mídia HTML5 (carrossel 336×280) com integração ao backend.
 
 ## Deploy rápido
-Veja `backend-firestore/README.md` para instruções detalhadas.
+Veja `backend-firestore/README.md` para instruções detalhadas...
