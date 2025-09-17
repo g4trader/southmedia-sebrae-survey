@@ -356,7 +356,7 @@ export default function DashboardV2() {
               </div>
               <button 
                 onClick={fetchData}
-                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-300 shadow-lg"
+                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg"
                 title="Atualizar dados agora"
               >
                 <RefreshCw className="w-5 h-5" />
@@ -373,10 +373,10 @@ export default function DashboardV2() {
             <div className="flex items-center justify-center space-x-4">
               <button
                 onClick={() => setSelectedAudience('all')}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                className={`px-6 py-3 rounded-xl font-semibold ${
                   selectedAudience === 'all'
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    : 'bg-white/10 text-white/70'
                 }`}
               >
                 <Users className="w-5 h-5 inline mr-2" />
@@ -384,10 +384,10 @@ export default function DashboardV2() {
               </button>
               <button
                 onClick={() => setSelectedAudience('small_business')}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                className={`px-6 py-3 rounded-xl font-semibold ${
                   selectedAudience === 'small_business'
                     ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    : 'bg-white/10 text-white/70'
                 }`}
               >
                 <Target className="w-5 h-5 inline mr-2" />
@@ -395,10 +395,10 @@ export default function DashboardV2() {
               </button>
               <button
                 onClick={() => setSelectedAudience('general_public')}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                className={`px-6 py-3 rounded-xl font-semibold ${
                   selectedAudience === 'general_public'
                     ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    : 'bg-white/10 text-white/70'
                 }`}
               >
                 <Users className="w-5 h-5 inline mr-2" />
@@ -410,7 +410,7 @@ export default function DashboardV2() {
 
         {/* Cards de Métricas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 hover:border-purple-400/50 transition-all duration-300">
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-purple-300">RESPOSTAS {selectedAudience === 'all' ? 'TOTAIS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</p>
@@ -427,7 +427,7 @@ export default function DashboardV2() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 hover:border-green-400/50 transition-all duration-300">
+          <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-300">META DIÁRIA</p>
@@ -442,7 +442,7 @@ export default function DashboardV2() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6 hover:border-orange-400/50 transition-all duration-300">
+          <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-orange-300">PROGRESSO META</p>
@@ -457,7 +457,7 @@ export default function DashboardV2() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 hover:border-blue-400/50 transition-all duration-300">
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-300">NOTA MÉDIA</p>
@@ -726,7 +726,7 @@ export default function DashboardV2() {
           <h2 className="text-2xl font-bold text-white mb-8">ANÁLISE POR PERGUNTA - {selectedAudience === 'all' ? 'AMBOS OS PÚBLICOS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {Object.entries(questionLabels).map(([question, label], index) => (
-              <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6 hover:border-gray-600/50 transition-all duration-300">
+              <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-white">{label}</h3>
                   <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
