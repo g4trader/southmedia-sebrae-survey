@@ -96,57 +96,30 @@ export default function DashboardV2() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
 
-  // CSS para desabilitar todas as animações e estabilizar Recharts
+  // CSS otimizado para estabilizar Recharts sem quebrar funcionalidade
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      * {
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
-        animation: none !important;
-        transition: none !important;
-      }
+      /* Estabilizar elementos Recharts */
       .recharts-cartesian-axis-tick,
       .recharts-cartesian-axis-tick-value,
-      .recharts-text,
-      .recharts-xAxis,
-      .recharts-yAxis {
+      .recharts-text {
         animation: none !important;
         transition: none !important;
         transform: none !important;
         opacity: 1 !important;
         visibility: visible !important;
       }
-      .recharts-wrapper {
-        animation: none !important;
-        transition: none !important;
-      }
+      .recharts-wrapper,
       .recharts-surface {
         animation: none !important;
         transition: none !important;
       }
-      /* Desabilitar completamente o Recharts */
-      .recharts-cartesian-axis-tick,
-      .recharts-cartesian-axis-tick-value,
-      .recharts-text {
-        display: none !important;
-      }
-      /* Forçar estabilidade em todos os elementos */
-      [class*="recharts"] {
-        animation: none !important;
-        transition: none !important;
-        transform: none !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-      }
-      /* Remover todas as classes problemáticas */
+      /* Remover transições problemáticas apenas dos elementos de UI */
       [class*="transition-all"],
       [class*="duration-300"],
       [class*="duration-500"] {
         transition: none !important;
-        animation: none !important;
       }
     `;
     document.head.appendChild(style);
@@ -544,15 +517,76 @@ export default function DashboardV2() {
               <h3 className="text-xl font-bold text-white">EVOLUÇÃO DIÁRIA - META VS REALIZADO</h3>
               <Calendar className="w-6 h-6 text-purple-400" />
             </div>
-            {/* GRÁFICO TEMPORARIAMENTE DESABILITADO PARA TESTE */}
-            <div className="h-[400px] flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-white mb-4">📊</div>
-                <div className="text-white text-lg mb-2">Gráfico Temporariamente Desabilitado</div>
-                <div className="text-white/70 text-sm">Testando solução para problema de piscar</div>
-                <div className="text-white/50 text-xs mt-2">Dados: {data.dailyData.length} pontos</div>
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(168,85,247,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="smallBusiness" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  name="Pequenos Negócios"
+                  dot={false}
+                  activeDot={{ r: 4, stroke: '#3B82F6', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="generalPublic" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  name="Sociedade"
+                  dot={false}
+                  activeDot={{ r: 4, stroke: '#10B981', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="smallBusinessTarget" 
+                  stroke="#EF4444" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Meta Pequenos Negócios"
+                  dot={false}
+                  activeDot={{ r: 3, stroke: '#EF4444', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="generalPublicTarget" 
+                  stroke="#F59E0B" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Meta Sociedade"
+                  dot={false}
+                  activeDot={{ r: 3, stroke: '#F59E0B', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -564,15 +598,65 @@ export default function DashboardV2() {
               <h3 className="text-xl font-bold text-white">PEQUENOS NEGÓCIOS - META VS REALIZADO</h3>
               <Target className="w-6 h-6 text-blue-400" />
             </div>
-            {/* GRÁFICO TEMPORARIAMENTE DESABILITADO PARA TESTE */}
-            <div className="h-[300px] flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-3">📊</div>
-                <div className="text-white text-lg mb-2">Gráfico Desabilitado</div>
-                <div className="text-white/70 text-sm">Teste de estabilidade</div>
-                <div className="text-white/50 text-xs mt-2">Pequenos Negócios</div>
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <defs>
+                  <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                  </linearGradient>
+                  <linearGradient id="colorSmallBusinessTarget" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="smallBusiness" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorSmallBusiness)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="smallBusinessTarget" 
+                  stroke="#EF4444" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  fillOpacity={0.3} 
+                  fill="url(#colorSmallBusinessTarget)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
             <div className="mt-4 text-center">
               <p className="text-sm text-blue-300">
                 Progresso: {data.smallBusinessResponses} / 1500 ({Math.round((data.smallBusinessResponses / 1500) * 100)}%)
@@ -586,15 +670,65 @@ export default function DashboardV2() {
               <h3 className="text-xl font-bold text-white">SOCIEDADE - META VS REALIZADO</h3>
               <Users className="w-6 h-6 text-green-400" />
             </div>
-            {/* GRÁFICO TEMPORARIAMENTE DESABILITADO PARA TESTE */}
-            <div className="h-[300px] flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-white mb-3">📊</div>
-                <div className="text-white text-lg mb-2">Gráfico Desabilitado</div>
-                <div className="text-white/70 text-sm">Teste de estabilidade</div>
-                <div className="text-white/50 text-xs mt-2">Sociedade</div>
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <defs>
+                  <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                  </linearGradient>
+                  <linearGradient id="colorGeneralPublicTarget" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="generalPublic" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorGeneralPublic)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="generalPublicTarget" 
+                  stroke="#F59E0B" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  fillOpacity={0.3} 
+                  fill="url(#colorGeneralPublicTarget)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
             <div className="mt-4 text-center">
               <p className="text-sm text-green-300">
                 Progresso: {data.generalPublicResponses} / 1500 ({Math.round((data.generalPublicResponses / 1500) * 100)}%)
@@ -687,14 +821,49 @@ export default function DashboardV2() {
                   <h3 className="text-sm font-semibold text-white">{label}</h3>
                   <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
                 </div>
-                {/* GRÁFICO TEMPORARIAMENTE DESABILITADO PARA TESTE */}
-                <div className="h-[200px] flex items-center justify-center bg-white/5 rounded-lg border border-white/10">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white mb-2">📊</div>
-                    <div className="text-white text-sm mb-1">Gráfico Desabilitado</div>
-                    <div className="text-white/70 text-xs">Teste de estabilidade</div>
-                  </div>
-                </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart 
+                    data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
+                      answer: answerLabels[answer as keyof typeof answerLabels] || answer,
+                      count
+                    }))}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                    syncId="dashboard-charts"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="answer" 
+                      angle={-45} 
+                      textAnchor="end" 
+                      height={60} 
+                      stroke="rgba(255,255,255,0.6)"
+                      tick={{ fontSize: 10 }}
+                      interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="count" 
+                      fill={COLORS[index % COLORS.length]}
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             ))}
           </div>
