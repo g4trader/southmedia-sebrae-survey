@@ -93,15 +93,23 @@ export default function Dashboard() {
       if (!resultV2.ok) throw new Error(resultV2.error || 'Erro na API V2');
 
       // Combinar dados de ambas as APIs
+      console.log('API V1 responses:', resultV1.responses?.length || 0);
+      console.log('API V2 responses:', resultV2.responses?.length || 0);
       const allResponses = [
         ...(resultV1.responses || []),
         ...(resultV2.responses || [])
       ];
+      console.log('Total combined responses:', allResponses.length);
       const responses = allResponses.filter((response: SurveyResponse) => {
         // Excluir respostas de teste
         const campaignId = response.campaign_id;
-        return !campaignId || !campaignId.toLowerCase().includes('test');
+        const isTest = campaignId && campaignId.toLowerCase().includes('test');
+        if (isTest) {
+          console.log('Filtering out test response:', campaignId);
+        }
+        return !isTest;
       });
+      console.log('Filtered responses:', responses.length);
       
       const questionStats: Record<string, Record<string, number>> = {};
       const hourlyData: Record<string, number> = {};
