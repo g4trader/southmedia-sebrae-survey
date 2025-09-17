@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
 import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3 } from 'lucide-react';
 
@@ -150,13 +150,17 @@ export default function DashboardV2() {
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
   }, []);
 
   // Configurações da campanha
-  const campaignEndDate = new Date('2025-10-31');
+  const campaignEndDate = useMemo(() => new Date('2025-10-31'), []);
   const targetPerAudience = 1500;
-  const campaignStartDate = new Date('2025-09-01'); // Assumindo início em setembro
+  const campaignStartDate = useMemo(() => new Date('2025-09-01'), []); // Assumindo início em setembro
 
   const fetchData = useCallback(async () => {
     try {
