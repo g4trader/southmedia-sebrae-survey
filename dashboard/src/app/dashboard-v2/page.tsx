@@ -127,6 +127,12 @@ export default function DashboardV2() {
         animation: none !important;
         transition: none !important;
       }
+      /* Desabilitar completamente o Recharts */
+      .recharts-cartesian-axis-tick,
+      .recharts-cartesian-axis-tick-value,
+      .recharts-text {
+        display: none !important;
+      }
     `;
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
