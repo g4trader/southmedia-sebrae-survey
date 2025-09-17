@@ -96,6 +96,27 @@ export default function DashboardV2() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
 
+  // CSS para desabilitar todas as animações
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      * {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+      }
+      .recharts-cartesian-axis-tick,
+      .recharts-cartesian-axis-tick-value,
+      .recharts-text {
+        animation: none !important;
+        transition: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
   // Configurações da campanha
   const campaignEndDate = new Date('2025-10-31');
   const targetPerAudience = 1500;
