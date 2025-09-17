@@ -9,7 +9,7 @@ interface SurveyResponse {
   timestamp: string;
   session_id: string;
   campaign_id: string | null;
-  audience_type?: 'small_business' | 'general_public'; // Novo campo
+  audience_type?: 'small_business' | 'general_public' | 'all' | string; // Novo campo
   answers: {
     q1: string;
     q2: string;
