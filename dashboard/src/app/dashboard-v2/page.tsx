@@ -484,10 +484,18 @@ export default function DashboardV2() {
               <Calendar className="w-6 h-6 text-purple-400" />
             </div>
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={data.dailyData}>
+              <LineChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="date" stroke="rgba(255,255,255,0.6)" />
-                <YAxis stroke="rgba(255,255,255,0.6)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'rgba(0,0,0,0.8)',
@@ -541,7 +549,7 @@ export default function DashboardV2() {
               <Target className="w-6 h-6 text-blue-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={data.dailyData}>
+              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
@@ -553,8 +561,16 @@ export default function DashboardV2() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="date" stroke="rgba(255,255,255,0.6)" />
-                <YAxis stroke="rgba(255,255,255,0.6)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'rgba(0,0,0,0.8)',
@@ -597,7 +613,7 @@ export default function DashboardV2() {
               <Users className="w-6 h-6 text-green-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={data.dailyData}>
+              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <defs>
                   <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
@@ -609,8 +625,16 @@ export default function DashboardV2() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="date" stroke="rgba(255,255,255,0.6)" />
-                <YAxis stroke="rgba(255,255,255,0.6)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'rgba(0,0,0,0.8)',
@@ -732,10 +756,13 @@ export default function DashboardV2() {
                   <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
                 </div>
                 <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
-                    answer: answerLabels[answer as keyof typeof answerLabels] || answer,
-                    count
-                  }))}>
+                  <BarChart 
+                    data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
+                      answer: answerLabels[answer as keyof typeof answerLabels] || answer,
+                      count
+                    }))}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis 
                       dataKey="answer" 
@@ -743,9 +770,13 @@ export default function DashboardV2() {
                       textAnchor="end" 
                       height={60} 
                       stroke="rgba(255,255,255,0.6)"
-                      fontSize={10}
+                      tick={{ fontSize: 10 }}
+                      interval="preserveStartEnd"
                     />
-                    <YAxis stroke="rgba(255,255,255,0.6)" />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 10 }}
+                    />
                     <Tooltip 
                       contentStyle={{
                         backgroundColor: 'rgba(0,0,0,0.8)',
