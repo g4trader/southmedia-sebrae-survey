@@ -294,7 +294,7 @@ export default function DashboardV2() {
           <p className="text-white/70 mb-6">{error}</p>
           <button 
             onClick={fetchData}
-            className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl shadow-lg"
           >
             Tentar novamente
           </button>
@@ -681,7 +681,7 @@ export default function DashboardV2() {
                     const difference = smallBusinessScore - generalPublicScore;
                     
                     return (
-                      <tr key={question} className="hover:bg-gray-800/30 transition-colors duration-200">
+                      <tr key={question}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                           {label}
                         </td>
