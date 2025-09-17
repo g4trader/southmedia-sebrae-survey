@@ -96,7 +96,7 @@ export default function DashboardV2() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
 
-  // CSS para desabilitar todas as animações
+  // CSS para desabilitar todas as animações e estabilizar Recharts
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
@@ -105,10 +105,25 @@ export default function DashboardV2() {
         animation-delay: 0s !important;
         transition-duration: 0s !important;
         transition-delay: 0s !important;
+        animation: none !important;
+        transition: none !important;
       }
       .recharts-cartesian-axis-tick,
       .recharts-cartesian-axis-tick-value,
-      .recharts-text {
+      .recharts-text,
+      .recharts-xAxis,
+      .recharts-yAxis {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      .recharts-wrapper {
+        animation: none !important;
+        transition: none !important;
+      }
+      .recharts-surface {
         animation: none !important;
         transition: none !important;
       }
@@ -505,7 +520,7 @@ export default function DashboardV2() {
               <Calendar className="w-6 h-6 text-purple-400" />
             </div>
             <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <LineChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} isAnimationActive={false}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis 
                   dataKey="date" 
@@ -570,7 +585,7 @@ export default function DashboardV2() {
               <Target className="w-6 h-6 text-blue-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} isAnimationActive={false}>
                 <defs>
                   <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
@@ -634,7 +649,7 @@ export default function DashboardV2() {
               <Users className="w-6 h-6 text-green-400" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <AreaChart data={data.dailyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} isAnimationActive={false}>
                 <defs>
                   <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
@@ -783,6 +798,7 @@ export default function DashboardV2() {
                       count
                     }))}
                     margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                    isAnimationActive={false}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis 
