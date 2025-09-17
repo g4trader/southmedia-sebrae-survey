@@ -150,7 +150,7 @@ export default function DashboardV2() {
       
       // Combinar dados das duas APIs
       const allResponses = [
-        ...(dataV1.responses || []).map((r: any) => ({ ...r, audience_type: 'all' })),
+        ...(dataV1.responses || []).map((r: SurveyResponse) => ({ ...r, audience_type: 'all' })),
         ...(dataV2.responses || [])
       ];
       
