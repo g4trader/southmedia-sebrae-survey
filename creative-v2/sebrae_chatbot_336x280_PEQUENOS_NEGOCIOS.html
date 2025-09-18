@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=336, initial-scale=1.0">
+    <title>SEBRAE · Chatbot 336×280 (PEQUENOS NEGÓCIOS)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 336px;
+            height: 250px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .header-text {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+            flex: 1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 18px;
+            font-size: 12px;
+            line-height: 1.4;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.bot {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            background: #fff;
+            color: #667eea;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            font-weight: 500;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            max-width: 80%;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            line-height: 1.3;
+        }
+
+        .option:hover {
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: #fff;
+        }
+
+        .start-button {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+            margin: 10px auto;
+            display: block;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        .result-screen {
+            display: none;
+            text-align: center;
+            color: #fff;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .result-text {
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: #fff;
+            color: #667eea;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <div class="avatar">🤖</div>
+            <div class="header-text" id="headerText">SEBRAE INSIGHTS</div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                Olá! 👋 Sou o assistente do SEBRAE e quero conhecer sua opinião sobre nossos serviços para pequenos negócios. Vamos começar?
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <div class="options" id="optionsContainer">
+            <button class="start-button" onclick="startChat()">
+                🚀 COMEÇAR PESQUISA
+            </button>
+        </div>
+
+        <div class="result-screen" id="resultScreen">
+            <div class="result-title">🎉 Pesquisa Concluída!</div>
+            <div class="result-text">
+                Obrigado pela sua participação! Seus insights são valiosos para melhorarmos nossos serviços.
+            </div>
+            <button class="download-btn" onclick="downloadResults()">
+                📊 Ver Resultados
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Configuração da API V2
+        const API_URL = 'https://sebrae-survey-api-v2-609095880025.us-central1.run.app/collect';
+        const AUDIENCE_TYPE = 'small_business';
+
+        const questions = [
+            {
+                text: "O SEBRAE acompanha as novidades em tecnologia e inovação que realmente importam para os pequenos negócios?",
+                options: [
+                    "Sim, está sempre atualizado e traz as tendências mais relevantes",
+                    "Na maioria das vezes sim, mas às vezes fica um pouco atrasado",
+                    "Às vezes sim, mas poderia ser mais proativo",
+                    "Não, geralmente fica desatualizado"
+                ]
+            },
+            {
+                text: "Como você avalia a qualidade dos cursos e treinamentos oferecidos pelo SEBRAE?",
+                options: [
+                    "Excelente, sempre aprendo coisas úteis e práticas",
+                    "Boa, mas poderia ter mais opções",
+                    "Regular, alguns cursos são bons outros não",
+                    "Ruim, não atende às minhas necessidades"
+                ]
+            },
+            {
+                text: "O SEBRAE oferece suporte adequado para digitalização dos pequenos negócios?",
+                options: [
+                    "Sim, tem excelentes ferramentas e orientações",
+                    "Sim, mas poderia ter mais recursos",
+                    "Parcialmente, falta algumas coisas importantes",
+                    "Não, o suporte é insuficiente"
+                ]
+            },
+            {
+                text: "Como você avalia o atendimento e suporte do SEBRAE?",
+                options: [
+                    "Excelente, sempre me ajudam quando preciso",
+                    "Bom, mas às vezes demora para responder",
+                    "Regular, depende de quem atende",
+                    "Ruim, não consigo o suporte que preciso"
+                ]
+            },
+            {
+                text: "O SEBRAE entende as necessidades reais dos pequenos negócios brasileiros?",
+                options: [
+                    "Sim, entende perfeitamente nossa realidade",
+                    "Sim, mas poderia entender melhor alguns aspectos",
+                    "Parcialmente, entende algumas coisas",
+                    "Não, está desconectado da nossa realidade"
+                ]
+            },
+            {
+                text: "Você recomendaria os serviços do SEBRAE para outros empreendedores?",
+                options: [
+                    "Sim, sempre recomendo",
+                    "Sim, mas com algumas ressalvas",
+                    "Às vezes, depende do caso",
+                    "Não, não recomendo"
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+        let isTyping = false;
+
+        function startChat() {
+            document.querySelector('.start-button').classList.add('hidden');
+            showNextQuestion();
+        }
+
+        function showNextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Mostrar indicador de digitação
+            showTyping();
+            
+            setTimeout(() => {
+                hideTyping();
+                addBotMessage(question.text);
+                showOptions(question.options);
+            }, 1500);
+        }
+
+        function showTyping() {
+            isTyping = true;
+            document.getElementById('typingIndicator').style.display = 'flex';
+        }
+
+        function hideTyping() {
+            isTyping = false;
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function addBotMessage(text) {
+            // Atualizar header com a pergunta
+            document.getElementById('headerText').textContent = text;
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addUserMessage(text) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user';
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showOptions(options) {
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => selectOption(option, index);
+                container.appendChild(button);
+            });
+        }
+
+        function selectOption(optionText, optionIndex) {
+            // Adicionar resposta do usuário
+            addUserMessage(optionText);
+            
+            // Salvar resposta
+            answers[`q${currentQuestion + 1}`] = optionText;
+            
+            // Limpar opções
+            document.getElementById('optionsContainer').innerHTML = '';
+            
+            // Próxima pergunta
+            currentQuestion++;
+            setTimeout(() => {
+                showNextQuestion();
+            }, 1000);
+        }
+
+        function showResults() {
+            document.getElementById('chatMessages').classList.add('hidden');
+            document.getElementById('optionsContainer').classList.add('hidden');
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            // Enviar dados
+            sendData();
+        }
+
+        function downloadResults() {
+            alert('Obrigado! Os resultados serão enviados por email.');
+        }
+
+        function sendData() {
+            const data = {
+                ...answers,
+                audience_type: AUDIENCE_TYPE,
+                session_id: 'session_' + Date.now(),
+                campaign_id: 'sebrae_chatbot_pequenos_negocios_336x280',
+                metadata: {
+                    user_agent: navigator.userAgent,
+                    referer: document.referrer,
+                    origin: window.location.origin,
+                    page_url: window.location.href
+                }
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            }).catch(err => console.log('Erro ao enviar:', err));
+        }
+    </script>
+</body>
+</html>

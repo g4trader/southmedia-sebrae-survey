@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=336, initial-scale=1">
+<title>SEBRAE INSIGHTS · 336×280 (PEQUENOS NEGÓCIOS)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%}
+body{
+  width:336px;height:280px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,"Noto Sans";
+  color:#1E40AF;
+  background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#10B981 100%);
+  overflow:hidden;
+}
+
+.stage{ width:336px;height:280px;border-radius:16px;overflow:hidden;position:relative; }
+.viewport{ position:absolute; inset:0; overflow:hidden; }
+.track{ display:flex; width:100%; height:100%; transition: transform .4s cubic-bezier(0.4, 0, 0.2, 1); }
+.slide{ flex:0 0 100%; display:block; height:100%; position:relative; }
+
+/* ===== CARD HOOK ===== */
+.hook-card{
+  width:100%;height:100%;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#10B981 100%);
+  color:#fff;
+}
+.hook-title{ font-size:18px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px; }
+.hook-question{ font-size:16px;font-weight:700;line-height:1.3;margin-bottom:16px; }
+.hook-benefits{ display:flex;flex-direction:column;gap:8px;margin-bottom:20px; }
+.benefit{ display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600; }
+.benefit-icon{ width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center; }
+.cta-button{ 
+  background:#fff;color:#1E40AF;font-weight:800;font-size:14px;padding:12px 24px;border-radius:12px;
+  border:none;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.cta-button:hover{ transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+.social-proof{ font-size:11px;opacity:0.9;margin-top:12px;display:flex;align-items:center;gap:6px; }
+
+/* ===== PERGUNTAS ===== */
+.question-card{
+  width:100%;height:100%;padding:16px;display:flex;flex-direction:column;
+  background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#10B981 100%);
+  color:#fff;
+}
+.question-header{ display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+.question-step{ font-size:12px;font-weight:700;opacity:0.9; }
+.progress-bar{ width:120px;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;overflow:hidden; }
+.progress-fill{ height:100%;background:#fff;border-radius:2px;transition:width 0.3s ease; }
+.question-text{ font-size:15px;font-weight:700;line-height:1.3;margin-bottom:16px; }
+.question-icon{ font-size:20px;margin-right:8px; }
+
+.options{ display:flex;flex-direction:column;gap:10px;margin-bottom:20px; }
+.option{ 
+  display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.1);
+  border-radius:10px;cursor:pointer;transition:all 0.3s ease;border:2px solid transparent;
+}
+.option:hover{ background:rgba(255,255,255,0.2);transform:translateX(4px); }
+.option.selected{ background:rgba(255,255,255,0.25);border-color:#fff; }
+.option-radio{ width:16px;height:16px;border:2px solid #fff;border-radius:50%;position:relative; }
+.option-radio::after{ content:"";position:absolute;inset:2px;background:#fff;border-radius:50%;transform:scale(0);transition:transform 0.2s ease; }
+.option.selected .option-radio::after{ transform:scale(1); }
+.option-text{ font-size:13px;font-weight:600;line-height:1.3; }
+
+.navigation{ display:flex;justify-content:space-between;align-items:center;margin-top:auto; }
+.nav-button{ 
+  background:rgba(255,255,255,0.2);color:#fff;border:none;padding:8px 16px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;transition:all 0.3s ease;
+}
+.nav-button:hover{ background:rgba(255,255,255,0.3); }
+.nav-button:disabled{ opacity:0.5;cursor:not-allowed; }
+.nav-button.primary{ background:#fff;color:#1E40AF;font-weight:800; }
+
+/* ===== RESULTADO ===== */
+.result-card{
+  width:100%;height:100%;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  background:linear-gradient(135deg,#1E40AF 0%,#3B82F6 50%,#10B981 100%);
+  color:#fff;
+}
+.result-title{ font-size:20px;font-weight:800;margin-bottom:12px; }
+.result-message{ font-size:14px;line-height:1.4;margin-bottom:16px; }
+.result-stats{ font-size:16px;font-weight:700;margin-bottom:20px;color:#10B981; }
+.result-benefits{ display:flex;flex-direction:column;gap:8px;margin-bottom:20px; }
+.result-button{ 
+  background:#fff;color:#1E40AF;font-weight:800;font-size:14px;padding:12px 24px;border-radius:12px;
+  border:none;cursor:pointer;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  text-transform:uppercase;letter-spacing:0.5px;
+}
+.result-button:hover{ transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes slideIn{ from{opacity:0;transform:translateX(20px);} to{opacity:1;transform:translateX(0);} }
+@keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+@keyframes confetti{ 0%{transform:translateY(0) rotate(0deg);opacity:1;} 100%{transform:translateY(-100px) rotate(360deg);opacity:0;} }
+
+.slide{ animation:slideIn 0.4s ease; }
+.cta-button:hover{ animation:pulse 0.6s ease infinite; }
+.confetti{ position:absolute;width:8px;height:8px;background:#fff;animation:confetti 2s ease forwards; }
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 336px) {
+  .hook-question{ font-size:14px; }
+  .question-text{ font-size:13px; }
+  .option-text{ font-size:12px; }
+}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="viewport">
+      <div class="track" id="track">
+        
+        <!-- CARD 1: HOOK -->
+        <section class="slide">
+          <div class="hook-card">
+            <div class="hook-title">
+              🎯 SEBRAE INSIGHTS
+            </div>
+            <div class="hook-question">
+              "Você concorda com 87% dos empreendedores do Paraná?"
+            </div>
+            <div class="hook-benefits">
+              <div class="benefit">
+                <div class="benefit-icon">✅</div>
+                <span>Descubra sua opinião</span>
+              </div>
+              <div class="benefit">
+                <div class="benefit-icon">📊</div>
+                <span>Veja os resultados</span>
+              </div>
+              <div class="benefit">
+                <div class="benefit-icon">🎁</div>
+                <span>Ganhe acesso a cursos</span>
+              </div>
+            </div>
+            <button class="cta-button" onclick="startSurvey()">
+              PARTICIPAR AGORA
+            </button>
+            <div class="social-proof">
+              👥 1.247 empreendedores já participaram
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 2: PERGUNTA 1 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 1 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:16.67%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">💡</span>
+              O Sebrae acompanha as novidades em tecnologia e inovação que realmente importam para os pequenos negócios?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q1', 'sempre')">
+                <div class="option-radio"></div>
+                <div class="option-text">Sim, está sempre atualizado e traz as tendências mais relevantes</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q1', 'maioria')">
+                <div class="option-radio"></div>
+                <div class="option-text">Na maioria das vezes sim, mas às vezes fica um pouco atrasado</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q1', 'raro')">
+                <div class="option-radio"></div>
+                <div class="option-text">Raramente, em geral está desatualizado</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q1', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()" disabled>← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()" disabled>Próxima →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 3: PERGUNTA 2 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 2 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:33.33%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">🚀</span>
+              O Sebrae oferece soluções práticas e aplicáveis para o dia a dia dos pequenos negócios?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q2', 'sempre')">
+                <div class="option-radio"></div>
+                <div class="option-text">Sim, sempre oferece soluções práticas e úteis</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q2', 'maioria')">
+                <div class="option-radio"></div>
+                <div class="option-text">Na maioria das vezes sim, mas às vezes é muito teórico</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q2', 'raro')">
+                <div class="option-radio"></div>
+                <div class="option-text">Raramente, geralmente é muito teórico</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q2', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()">← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()" disabled>Próxima →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 4: PERGUNTA 3 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 3 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:50%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">🤝</span>
+              O Sebrae está engajado com as necessidades reais dos pequenos negócios do Paraná?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q3', 'engajado')">
+                <div class="option-radio"></div>
+                <div class="option-text">Muito engajado, entende bem as necessidades</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q3', 'alguma')">
+                <div class="option-radio"></div>
+                <div class="option-text">Alguma conexão, mas poderia ser melhor</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q3', 'pouco')">
+                <div class="option-radio"></div>
+                <div class="option-text">Pouco engajado, não entende as necessidades</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q3', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()">← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()" disabled>Próxima →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 5: PERGUNTA 4 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 4 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:66.67%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">📈</span>
+              O Sebrae ajuda os pequenos negócios a crescer e se desenvolver?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q4', 'sempre')">
+                <div class="option-radio"></div>
+                <div class="option-text">Sim, sempre ajuda no crescimento</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q4', 'as_vezes')">
+                <div class="option-radio"></div>
+                <div class="option-text">Às vezes sim, mas poderia ser mais efetivo</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q4', 'raro')">
+                <div class="option-radio"></div>
+                <div class="option-text">Raramente, pouco efetivo para crescimento</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q4', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()">← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()" disabled>Próxima →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 6: PERGUNTA 5 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 5 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:83.33%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">⚡</span>
+              O Sebrae responde rapidamente às demandas dos pequenos negócios?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q5', 'muito_agil')">
+                <div class="option-radio"></div>
+                <div class="option-text">Muito ágil, responde rapidamente</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q5', 'as_vezes')">
+                <div class="option-radio"></div>
+                <div class="option-text">Às vezes sim, mas poderia ser mais rápido</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q5', 'demora')">
+                <div class="option-radio"></div>
+                <div class="option-text">Demora muito para responder</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q5', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()">← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()" disabled>Próxima →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 7: PERGUNTA 6 -->
+        <section class="slide">
+          <div class="question-card">
+            <div class="question-header">
+              <div class="question-step">Pergunta 6 de 6</div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:100%"></div>
+              </div>
+            </div>
+            <div class="question-text">
+              <span class="question-icon">🤝</span>
+              O Sebrae tem parcerias estratégicas que beneficiam os pequenos negócios?
+            </div>
+            <div class="options">
+              <div class="option" onclick="selectOption(this, 'q6', 'muitas_parcerias')">
+                <div class="option-radio"></div>
+                <div class="option-text">Sim, tem muitas parcerias estratégicas</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q6', 'algumas')">
+                <div class="option-radio"></div>
+                <div class="option-text">Algumas parcerias, mas poderia ter mais</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q6', 'poucas')">
+                <div class="option-radio"></div>
+                <div class="option-text">Poucas parcerias estratégicas</div>
+              </div>
+              <div class="option" onclick="selectOption(this, 'q6', 'nao_sei')">
+                <div class="option-radio"></div>
+                <div class="option-text">Não conheço o Sebrae / Não sei avaliar</div>
+              </div>
+            </div>
+            <div class="navigation">
+              <button class="nav-button" onclick="previousQuestion()">← Anterior</button>
+              <button class="nav-button primary" onclick="nextQuestion()">Finalizar →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- CARD 8: RESULTADO -->
+        <section class="slide">
+          <div class="result-card">
+            <div class="result-title">🎉 OBRIGADO!</div>
+            <div class="result-message">
+              Sua opinião foi registrada com sucesso!
+            </div>
+            <div class="result-stats">
+              Você está entre os 23% que pensam como você
+            </div>
+            <div class="result-benefits">
+              <div class="benefit">
+                <div class="benefit-icon">📊</div>
+                <span>Resultados completos</span>
+              </div>
+              <div class="benefit">
+                <div class="benefit-icon">🎓</div>
+                <span>Cursos exclusivos</span>
+              </div>
+              <div class="benefit">
+                <div class="benefit-icon">📋</div>
+                <span>Relatório personalizado</span>
+              </div>
+            </div>
+            <button class="result-button" onclick="downloadResults()">
+              BAIXAR AGORA
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+// Configuração da API V2
+const API_URL = 'https://sebrae-survey-api-v2-609095880025.us-central1.run.app/collect';
+const AUDIENCE_TYPE = 'small_business';
+
+const track = document.getElementById('track');
+const slides = Array.from(track.children);
+let currentSlide = 0;
+const answers = {};
+
+function updateSlide() {
+  const translateX = -currentSlide * 100;
+  track.style.transform = `translateX(${translateX}%)`;
+}
+
+function startSurvey() {
+  currentSlide = 1;
+  updateSlide();
+}
+
+function selectOption(element, question, value) {
+  // Remove seleção anterior
+  const options = element.parentElement.querySelectorAll('.option');
+  options.forEach(opt => opt.classList.remove('selected'));
+  
+  // Seleciona nova opção
+  element.classList.add('selected');
+  answers[question] = value;
+  
+  // Habilita botão próximo
+  const nextBtn = element.closest('.slide').querySelector('.nav-button.primary');
+  nextBtn.disabled = false;
+}
+
+function nextQuestion() {
+  if (currentSlide < slides.length - 1) {
+    currentSlide++;
+    updateSlide();
+    
+    // Desabilita botão próximo da nova pergunta
+    const nextBtn = slides[currentSlide].querySelector('.nav-button.primary');
+    if (nextBtn) nextBtn.disabled = true;
+  }
+}
+
+function previousQuestion() {
+  if (currentSlide > 0) {
+    currentSlide--;
+    updateSlide();
+  }
+}
+
+function downloadResults() {
+  // Simular download
+  alert('Obrigado! Os resultados serão enviados por email.');
+}
+
+// Função para enviar dados
+function sendData() {
+  const data = {
+    ...answers,
+    audience_type: AUDIENCE_TYPE,
+    session_id: 'session_' + Date.now(),
+    campaign_id: 'sebrae_insights_pequenos_negocios_336x280',
+    metadata: {
+      user_agent: navigator.userAgent,
+      referer: document.referrer,
+      origin: window.location.origin,
+      page_url: window.location.href
+    }
+  };
+  
+  fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(err => console.log('Erro ao enviar:', err));
+}
+
+// Adicionar listeners
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('nav-button') && e.target.textContent.includes('Finalizar')) {
+    sendData();
+  }
+});
+
+// Inicializar
+updateSlide();
+</script>
+</body>
+</html>
