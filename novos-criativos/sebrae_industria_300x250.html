@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEBRAE - Trabalhar na Indústria</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 300px;
+            height: 250px;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background with industrial texture */
+        .background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, #1a2a5a 0%, #2c4a7a 50%, #1a2a5a 100%),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            background-size: cover, 100px 100px;
+            background-blend-mode: overlay;
+        }
+
+        /* Blue overlay */
+        .blue-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(26, 42, 90, 0.8) 0%, rgba(44, 74, 122, 0.6) 100%);
+            z-index: 1;
+        }
+
+        /* Industrial background elements */
+        .industrial-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .machinery {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 80px;
+            height: 60px;
+            background: 
+                linear-gradient(45deg, #4a5568 0%, #2d3748 50%, #4a5568 100%);
+            border-radius: 8px;
+            opacity: 0.3;
+            transform: rotate(-15deg);
+        }
+
+        .machinery::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            background: #718096;
+            border-radius: 50%;
+        }
+
+        .machinery::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 15px;
+            height: 15px;
+            background: #a0aec0;
+            border-radius: 2px;
+        }
+
+        .tech-eye {
+            position: absolute;
+            bottom: 30px;
+            right: 40px;
+            width: 40px;
+            height: 40px;
+            background: 
+                radial-gradient(circle, #4a5568 0%, #2d3748 70%);
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .tech-eye::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #a0aec0;
+            border-radius: 50%;
+        }
+
+        /* Woman character - starts off-screen right */
+        .woman-container {
+            position: absolute;
+            top: 0;
+            right: -150px; /* Start off-screen */
+            width: 150px;
+            height: 250px;
+            z-index: 10;
+            animation: slideInFromRight 2s ease-out 0.5s forwards;
+        }
+
+        .woman {
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%);
+            position: relative;
+            clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+
+        /* Woman's head and face */
+        .woman-head {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: #f7fafc;
+            border-radius: 50%;
+        }
+
+        .woman-hair {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 50px;
+            height: 50px;
+            background: #2d3748;
+            border-radius: 50%;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 0% 70%);
+        }
+
+        .woman-hair::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -5px;
+            width: 20px;
+            height: 30px;
+            background: #2d3748;
+            border-radius: 10px;
+            transform: rotate(-20deg);
+        }
+
+        .woman-eyes {
+            position: absolute;
+            top: 25px;
+            left: 15px;
+            width: 30px;
+            height: 8px;
+            background: #2d3748;
+            border-radius: 4px;
+        }
+
+        .woman-eyes::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 5px;
+            width: 4px;
+            height: 4px;
+            background: #f7fafc;
+            border-radius: 50%;
+        }
+
+        .woman-eyes::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: 5px;
+            width: 4px;
+            height: 4px;
+            background: #f7fafc;
+            border-radius: 50%;
+        }
+
+        .woman-mouth {
+            position: absolute;
+            top: 35px;
+            left: 20px;
+            width: 20px;
+            height: 4px;
+            background: #e53e3e;
+            border-radius: 2px;
+        }
+
+        /* Woman's body */
+        .woman-body {
+            position: absolute;
+            top: 80px;
+            left: 10px;
+            width: 80px;
+            height: 120px;
+            background: #2b6cb0;
+            border-radius: 8px;
+        }
+
+        .woman-shirt {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 60px;
+            height: 40px;
+            background: #f7fafc;
+            border-radius: 4px;
+        }
+
+        .woman-arms {
+            position: absolute;
+            top: 90px;
+            left: 5px;
+            width: 90px;
+            height: 30px;
+            background: #2b6cb0;
+            border-radius: 15px;
+        }
+
+        .woman-hands {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            background: #4a5568;
+            border-radius: 10px;
+        }
+
+        .woman-hands::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: #4a5568;
+            border-radius: 10px;
+        }
+
+        .woman-device {
+            position: absolute;
+            top: 8px;
+            left: 35px;
+            width: 25px;
+            height: 15px;
+            background: #1a202c;
+            border-radius: 3px;
+        }
+
+        .woman-device::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 21px;
+            height: 11px;
+            background: #2d3748;
+            border-radius: 2px;
+        }
+
+        /* Text content */
+        .text-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 60%;
+            height: 100%;
+            z-index: 5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .headline-1 {
+            font-size: 14px;
+            font-weight: 400;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.5s forwards;
+        }
+
+        .headline-2 {
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 2s forwards;
+        }
+
+        .subheadline {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 2.5s forwards;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            width: 120px;
+            height: 35px;
+            background: #46BFFD;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 3s forwards;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            background: #38a9e0;
+        }
+
+        .checkmark {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #46BFFD;
+        }
+
+        .cta-text {
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Logo section */
+        .logo-section {
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            width: 100px;
+            height: 60px;
+            background: white;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 3.5s forwards;
+        }
+
+        .sistema-fiep {
+            font-size: 10px;
+            font-weight: 700;
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .acronyms {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .acronym {
+            font-size: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            text-align: center;
+        }
+
+        .acronym:not(:last-child) {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+        }
+
+        /* Animations */
+        @keyframes slideInFromRight {
+            from {
+                right: -150px;
+            }
+            to {
+                right: 0;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hover effects */
+        .container:hover .woman-container {
+            animation-duration: 1.5s;
+        }
+
+        .container:hover .cta-button {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" onclick="handleClick()">
+        <!-- Background -->
+        <div class="background"></div>
+        <div class="blue-overlay"></div>
+
+        <!-- Industrial background elements -->
+        <div class="industrial-bg">
+            <div class="machinery"></div>
+            <div class="tech-eye"></div>
+        </div>
+
+        <!-- Woman character -->
+        <div class="woman-container">
+            <div class="woman">
+                <div class="woman-head">
+                    <div class="woman-hair"></div>
+                    <div class="woman-eyes"></div>
+                    <div class="woman-mouth"></div>
+                </div>
+                <div class="woman-body">
+                    <div class="woman-shirt"></div>
+                </div>
+                <div class="woman-arms">
+                    <div class="woman-hands"></div>
+                    <div class="woman-device"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text content -->
+        <div class="text-content">
+            <div class="headline-1">Trabalhar na</div>
+            <div class="headline-2">Indústria</div>
+            <div class="subheadline">Representa Dignidade</div>
+            
+            <div class="cta-button">
+                <div class="checkmark">✓</div>
+                <div class="cta-text">Saiba Mais >></div>
+            </div>
+        </div>
+
+        <!-- Logo section -->
+        <div class="logo-section">
+            <div class="sistema-fiep">Sistema Fiep</div>
+            <div class="acronyms">
+                <div class="acronym">FIEP</div>
+                <div class="acronym">SESI</div>
+                <div class="acronym">SENAI</div>
+                <div class="acronym">IEL</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ClickTag functionality for DV360
+        function handleClick() {
+            const clicktag = "%%CLICK_URL_UNESC%%" || "https://www.sebrae.com.br";
+            window.open(clicktag, "_blank");
+        }
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', function(e) {
+            const container = document.querySelector('.container');
+            const rect = container.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            
+            // Subtle parallax effect on background elements
+            const machinery = document.querySelector('.machinery');
+            const techEye = document.querySelector('.tech-eye');
+            
+            const moveX = (x - 0.5) * 5;
+            const moveY = (y - 0.5) * 5;
+            
+            machinery.style.transform = `rotate(-15deg) translate(${moveX}px, ${moveY}px)`;
+            techEye.style.transform = `translate(${moveX * 0.5}px, ${moveY * 0.5}px)`;
+        });
+
+        // Performance optimization
+        let animationFrame;
+        function optimizeAnimations() {
+            if (document.hidden) {
+                cancelAnimationFrame(animationFrame);
+            } else {
+                animationFrame = requestAnimationFrame(optimizeAnimations);
+            }
+        }
+        
+        document.addEventListener('visibilitychange', optimizeAnimations);
+    </script>
+</body>
+</html>

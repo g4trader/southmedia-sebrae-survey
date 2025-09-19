@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEBRAE Survey - Coleta Progressiva</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f0f0; }
+    
+    .stage { width: 336px; height: 280px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; position: relative; }
+    
+    .track { display: flex; width: 800%; height: 100%; transition: transform 0.3s ease; }
+    .slide { width: 12.5%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+    
+    .container { padding: 20px; text-align: center; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+    
+    .header h1 { font-size: 18px; color: #2c3e50; margin-bottom: 15px; font-weight: 600; }
+    .header p { font-size: 14px; color: #7f8c8d; margin-bottom: 20px; line-height: 1.4; }
+    
+    .qform { margin-bottom: 20px; }
+    .opts { display: flex; flex-direction: column; gap: 8px; }
+    .opt { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 6px; transition: background 0.2s; }
+    .opt:hover { background: #f8f9fa; }
+    .opt input[type="radio"] { display: none; }
+    .opt .o { width: 16px; height: 16px; border: 2px solid #ddd; border-radius: 50%; position: relative; }
+    .opt input:checked + .o { border-color: #3498db; background: #3498db; }
+    .opt input:checked + .o::after { content: ''; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; background: white; border-radius: 50%; }
+    .opt .t { font-size: 13px; color: #2c3e50; line-height: 1.3; }
+    
+    .button { background: #3498db; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .button:hover { background: #2980b9; transform: translateY(-1px); }
+    .button:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
+    
+    .nav { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #ddd; cursor: pointer; transition: background 0.2s; }
+    .dot.act { background: #3498db; }
+    
+    .bbar { position: absolute; bottom: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .bbar button { background: none; border: none; color: #7f8c8d; cursor: pointer; font-size: 12px; }
+    .bbar button:disabled { color: #bdc3c7; cursor: not-allowed; }
+    
+    .gradient { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-text { color: white; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
+    
+    .toaster { position: absolute; top: 15px; left: 15px; right: 15px; background: #2ecc71; color: white; padding: 10px; border-radius: 6px; font-size: 12px; text-align: center; transform: translateY(-100px); opacity: 0; transition: all 0.3s ease; z-index: 1000; }
+    .toaster.show { transform: translateY(0); opacity: 1; }
+    .toaster.error { background: #e74c3c; }
+    
+    .progress-indicator { position: absolute; top: 10px; right: 15px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 12px; font-size: 11px; color: #2c3e50; }
+    
+    .opts.err { border: 2px solid #e74c3c; border-radius: 6px; padding: 4px; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="track" id="track">
+      
+      <!-- Slide 0 · Card de Boas-vindas -->
+      <section class="slide" data-kind="card">
+        <div class="gradient"></div>
+        <div style="position:absolute; inset:0;">
+          <div class="container">
+            <div>
+              <div class="header"><h1>Olá! 👋</h1></div>
+              <p class="card-text">Queremos conhecer sua opinião sobre o Sebrae/PR para melhorar nossos serviços.</p>
+              <div class="button" data-action="start">COMEÇAR PESQUISA</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 1 · Pergunta 1 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">1/6</div>
+          <div class="header">
+            <h1>Pergunta 1</h1>
+            <p>Com que frequência você acessa o site do Sebrae/PR?</p>
+          </div>
+          <form class="qform" data-q="1">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q1" value="sempre"><span class="o"></span><span class="t">Sempre que preciso de informações sobre empreendedorismo</span></label>
+              <label class="opt"><input type="radio" name="q1" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes que busco informações</span></label>
+              <label class="opt"><input type="radio" name="q1" value="as_vezes"><span class="o"></span><span class="t">Às vezes, quando lembro</span></label>
+              <label class="opt"><input type="radio" name="q1" value="raramente"><span class="o"></span><span class="t">Raramente acesso</span></label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Slide 2 · Pergunta 2 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">2/6</div>
+          <div class="header">
+            <h1>Pergunta 2</h1>
+            <p>Como você avalia o conteúdo disponível no site do Sebrae/PR?</p>
+          </div>
+          <form class="qform" data-q="2">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q2" value="muito_util"><span class="o"></span><span class="t">Muito útil e atualizado</span></label>
+              <label class="opt"><input type="radio" name="q2" value="maioria"><span class="o"></span><span class="t">A maioria é útil</span></label>
+              <label class="opt"><input type="radio" name="q2" value="as_vezes"><span class="o"></span><span class="t">Às vezes encontro o que preciso</span></label>
+              <label class="opt"><input type="radio" name="q2" value="pouco_util"><span class="o"></span><span class="t">Pouco útil para minhas necessidades</span></label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Slide 3 · Pergunta 3 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">3/6</div>
+          <div class="header">
+            <h1>Pergunta 3</h1>
+            <p>Você se sente engajado com as iniciativas do Sebrae/PR?</p>
+          </div>
+          <form class="qform" data-q="3">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q3" value="muito_engajado"><span class="o"></span><span class="t">Muito engajado, participo sempre que posso</span></label>
+              <label class="opt"><input type="radio" name="q3" value="engajado"><span class="o"></span><span class="t">Engajado, participo ocasionalmente</span></label>
+              <label class="opt"><input type="radio" name="q3" value="pouco_engajado"><span class="o"></span><span class="t">Pouco engajado, participo raramente</span></label>
+              <label class="opt"><input type="radio" name="q3" value="nao_engajado"><span class="o"></span><span class="t">Não me sinto engajado</span></label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Slide 4 · Pergunta 4 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">4/6</div>
+          <div class="header">
+            <h1>Pergunta 4</h1>
+            <p>Com que frequência você recomenda o Sebrae/PR para outros empreendedores?</p>
+          </div>
+          <form class="qform" data-q="4">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q4" value="sempre"><span class="o"></span><span class="t">Sempre que tenho oportunidade</span></label>
+              <label class="opt"><input type="radio" name="q4" value="maioria"><span class="o"></span><span class="t">Na maioria das vezes</span></label>
+              <label class="opt"><input type="radio" name="q4" value="as_vezes"><span class="o"></span><span class="t">Às vezes</span></label>
+              <label class="opt"><input type="radio" name="q4" value="raramente"><span class="o"></span><span class="t">Raramente recomendo</span></label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Slide 5 · Pergunta 5 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">5/6</div>
+          <div class="header">
+            <h1>Pergunta 5</h1>
+            <p>Como você avalia a agilidade do atendimento do Sebrae/PR?</p>
+          </div>
+          <form class="qform" data-q="5">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q5" value="muito_agil"><span class="o"></span><span class="t">Muito ágil, sempre me atende rapidamente</span></label>
+              <label class="opt"><input type="radio" name="q5" value="agil"><span class="o"></span><span class="t">Ágil na maioria das vezes</span></label>
+              <label class="opt"><input type="radio" name="q5" value="moderado"><span class="o"></span><span class="t">Moderadamente ágil</span></label>
+              <label class="opt"><input type="radio" name="q5" value="lento"><span class="o"></span><span class="t">Lento, demora para me atender</span></label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Slide 6 · Pergunta 6 -->
+      <section class="slide" data-kind="question">
+        <div class="container">
+          <div class="progress-indicator">6/6</div>
+          <div class="header">
+            <h1>Pergunta 6</h1>
+            <p>O Sebrae/PR faz parcerias que realmente ajudam os empreendedores?</p>
+          </div>
+          <form class="qform" data-q="6">
+            <div class="opts">
+              <label class="opt"><input type="radio" name="q6" value="muitas_parcerias"><span class="o"></span><span class="t">Sim, faz muitas parcerias que realmente ajudam os empreendedores</span></label>
+              <label class="opt"><input type="radio" name="q6" value="algumas"><span class="o"></span><span class="t">Faz algumas parcerias, mas poderia colaborar mais</span></label>
+              <label class="opt"><input type="radio" name="q6" value="raramente"><span class="o"></span><span class="t">Raramente vejo essas parcerias acontecendo</span></label>
+              <label class="opt"><input type="radio" name="q6" value="nao_sei"><span class="o"></span><span class="t">Não conheço o Sebrae / Não sei avaliar</span></label>
+            </div>
+          </form>
+          <div class="button" data-action="to-thanks">VER MEUS CURSOS GRATUITOS ❤</div>
+        </div>
+      </section>
+
+      <!-- Slide 7 · Card Obrigado -->
+      <section class="slide" data-kind="card">
+        <div class="gradient"></div>
+        <div style="position:absolute; inset:0;">
+          <div class="container">
+            <div>
+              <div class="header"><h1>Obrigado por participar da nossa pesquisa!</h1></div>
+              <p class="card-text"><strong>Parabéns!</strong> Você tem acesso livre aos cursos online do site do Sebrae/PR.</p>
+              <div class="button" onclick="window.open('https://www.sebrae.com.br/sites/PortalSebrae/cursosonline', '_blank')">ACESSAR CURSOS GRATUITOS</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav" id="nav">
+      <div class="dot" data-slide="0"></div>
+      <div class="dot" data-slide="1"></div>
+      <div class="dot" data-slide="2"></div>
+      <div class="dot" data-slide="3"></div>
+      <div class="dot" data-slide="4"></div>
+      <div class="dot" data-slide="5"></div>
+      <div class="dot" data-slide="6"></div>
+      <div class="dot" data-slide="7"></div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bbar" id="bbar">
+      <button id="prev" disabled>← Anterior</button>
+      <button id="next">Próximo →</button>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toaster" id="toaster"></div>
+  </div>
+
+<script>
+// ===== Carousel Navigation =====
+(function(){
+  const track = document.getElementById('track');
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const nav = document.getElementById('nav');
+  const bbar = document.getElementById('bbar');
+  let i = 0;
+
+  function update(){
+    track.style.transform = `translateX(-${i * 12.5}%)`;
+    dots.forEach((dot, idx) => dot.classList.toggle('act', idx === i));
+    prev.disabled = i === 0;
+    next.disabled = i === slides.length - 1;
+    nav.style.display = i === 0 || i === slides.length - 1 ? 'none' : 'flex';
+    bbar.style.display = i === 0 || i === slides.length - 1 ? 'none' : 'flex';
+  }
+
+  prev.addEventListener('click', () => { if(i>0){ i--; update(); } });
+  next.addEventListener('click', () => { if(i<slides.length-1){ i++; } else { i=0; } update(); });
+
+  // Ações dos botões do card
+  document.addEventListener('click', (e) => {
+    const el = e.target;
+    if(!el || !el.classList) return;
+    if(i===0 && el.classList.contains('button') && el.dataset.action==='start'){ i=1; update(); }
+    if(el.classList.contains('button') && el.dataset.action==='to-thanks'){ i = slides.length-1; update(); }
+  });
+
+  // Teclado & touch
+  document.addEventListener('keydown', (e) => { if(e.key==='ArrowLeft' && !prev.disabled) prev.click(); if(e.key==='ArrowRight') next.click(); });
+  let sx=0, dx=0, sw=false;
+  track.addEventListener('touchstart', e=>{ sx=e.touches[0].clientX; sw=true; }, {passive:true});
+  track.addEventListener('touchmove', e=>{ if(!sw) return; dx=e.touches[0].clientX - sx; }, {passive:true});
+  track.addEventListener('touchend', e=>{ if(!sw) return; sw=false; if(Math.abs(dx)>30){ if(dx<0) next.click(); else prev.click(); } sx=dx=0; }, {passive:true});
+
+  update();
+})();
+</script>
+
+<script>
+// ===== Progressive Data Collection =====
+(function(){
+  // Configuration
+  const qs = new URLSearchParams(location.search);
+  const DEFAULT_API_URL = "https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/collect";
+  const API_URL = qs.get("api") || DEFAULT_API_URL;
+  
+  // Generate unique session ID
+  const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  
+  // Toast system
+  const toaster = document.getElementById('toaster');
+  function toast(msg, ms, isError = false){
+    toaster.textContent = msg;
+    toaster.className = `toaster ${isError ? 'error' : ''}`;
+    toaster.classList.add('show');
+    setTimeout(()=> toaster.classList.remove('show'), ms||1800);
+  }
+
+  // Track answered questions
+  const answeredQuestions = new Set();
+  let isSubmitting = false;
+
+  // Progressive data collection - save on each answer
+  document.addEventListener('change', async function(e){
+    if(!e.target || e.target.type !== 'radio') return;
+    
+    const questionName = e.target.name;
+    const questionNumber = parseInt(questionName.replace('q', ''));
+    const answer = e.target.value;
+    
+    // Mark question as answered
+    answeredQuestions.add(questionNumber);
+    
+    // Build progressive payload
+    const payload = {
+      session_id: sessionId,
+      question_number: questionNumber,
+      answer: answer,
+      is_complete: questionNumber === 6, // Last question
+      timestamp: new Date().toISOString(),
+      campaign_id: qs.get("campaign") || qs.get("utm_campaign") || qs.get("cid") || null,
+      line_item_id: qs.get("line_item") || qs.get("li") || null,
+      creative_id: qs.get("creative_id") || qs.get("crid") || null,
+      page_url: document.referrer || null,
+      user_agent: navigator.userAgent
+    };
+
+    // If it's the last question, include all answers
+    if(questionNumber === 6) {
+      const allAnswers = {};
+      for(let i = 1; i <= 6; i++) {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`);
+        allAnswers[`q${i}`] = sel ? sel.value : null;
+      }
+      payload.all_answers = allAnswers;
+      payload.completion_timestamp = new Date().toISOString();
+    }
+
+    // Send progressive data
+    try {
+      const resp = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+        mode: "cors",
+        keepalive: true
+      });
+
+      if(resp && resp.ok) {
+        if(questionNumber === 6) {
+          toast("✅ Pesquisa concluída! Obrigado!", 2000);
+        } else {
+          // Silent success for intermediate questions
+          console.log(`Question ${questionNumber} saved successfully`);
+        }
+      } else {
+        console.warn(`Failed to save question ${questionNumber}`);
+        // Store locally as fallback
+        localStorage.setItem(`survey_q${questionNumber}`, JSON.stringify(payload));
+      }
+    } catch(err) {
+      console.error(`Error saving question ${questionNumber}:`, err);
+      // Store locally as fallback
+      localStorage.setItem(`survey_q${questionNumber}`, JSON.stringify(payload));
+    }
+  });
+
+  // Final submission handler (backup)
+  document.addEventListener("click", async function(e){
+    const el = e.target;
+    if(!el || !el.classList) return;
+    if(el.classList.contains("button") && el.dataset.action === "to-thanks"){
+      
+      if(isSubmitting) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return;
+      }
+      
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      isSubmitting = true;
+
+      try{
+        // Build complete payload
+        const allAnswers = {};
+        for(let i = 1; i <= 6; i++){
+          const sel = document.querySelector(`input[name="q${i}"]:checked`);
+          allAnswers[`q${i}`] = sel ? sel.value : null;
+        }
+
+        // Check if all questions are answered
+        const missing = [];
+        for(let i = 1; i <= 6; i++){
+          if(!allAnswers[`q${i}`]) missing.push(`q${i}`);
+        }
+
+        if(missing.length){
+          toast("❌ Responda todas as perguntas para continuar.", 2000, true);
+          highlightMissing(missing);
+          isSubmitting = false;
+          return;
+        }
+
+        // Send complete payload
+        const completePayload = {
+          session_id: sessionId,
+          ...allAnswers,
+          is_complete: true,
+          completion_timestamp: new Date().toISOString(),
+          campaign_id: qs.get("campaign") || qs.get("utm_campaign") || qs.get("cid") || null,
+          line_item_id: qs.get("line_item") || qs.get("li") || null,
+          creative_id: qs.get("creative_id") || qs.get("crid") || null,
+          page_url: document.referrer || null,
+          user_agent: navigator.userAgent
+        };
+
+        toast("📤 Enviando respostas finais...", 1000);
+        
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(completePayload),
+          mode: "cors",
+          keepalive: true
+        });
+
+        if(!resp || !resp.ok){
+          console.warn("Final submission failed, but progressive data was already saved");
+          toast("⚠️ Dados já salvos progressivamente. Continuando...", 2000);
+        } else {
+          toast("✅ Respostas finais registradas!", 2000);
+        }
+
+        // Move to thank you slide
+        const track = document.getElementById('track');
+        if(track){
+          track.style.transform = 'translateX(-700%)';
+          const dots = document.querySelectorAll('.dot');
+          dots.forEach((dot, idx) => dot.classList.toggle('act', idx === 7));
+          const bbar = document.getElementById('bbar');
+          if(bbar) bbar.classList.add('hidden');
+        }
+
+      }catch(err){
+        console.error("Final submission error:", err);
+        toast("⚠️ Erro no envio final, mas dados já foram salvos.", 2000, true);
+        isSubmitting = false;
+      }
+    }
+  }, true);
+
+  // Highlight missing questions
+  function highlightMissing(missing){
+    missing.forEach(m => {
+      const form = document.querySelector(`.qform[data-q="${m.replace("q","")}"]`);
+      if(form){
+        form.querySelector(".opts")?.classList.add("err");
+        setTimeout(()=> form.querySelector(".opts")?.classList.remove("err"), 1500);
+      }
+    });
+  }
+
+  // Restore previous answers if any
+  try{
+    for(let i = 1; i <= 6; i++){
+      const saved = localStorage.getItem(`survey_q${i}`);
+      if(saved){
+        const data = JSON.parse(saved);
+        const radio = document.querySelector(`input[name="q${i}"][value="${data.answer}"]`);
+        if(radio) {
+          radio.checked = true;
+          answeredQuestions.add(i);
+        }
+      }
+    }
+  }catch(e){
+    console.warn("Could not restore previous answers:", e);
+  }
+
+  // Clean up localStorage on successful completion
+  window.addEventListener('beforeunload', function(){
+    if(answeredQuestions.size === 6) {
+      // Clear saved data if survey is complete
+      for(let i = 1; i <= 6; i++){
+        localStorage.removeItem(`survey_q${i}`);
+      }
+    }
+  });
+
+  console.log(`Progressive data collection initialized. Session ID: ${sessionId}`);
+})();
+</script>
+
+</body>
+</html>
