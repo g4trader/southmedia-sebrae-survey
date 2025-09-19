@@ -132,7 +132,13 @@ def handle_progressive_data(data):
                 "id": doc_id,
                 "type": "progressive",
                 "question_number": question_number,
-                "is_complete": data.get("is_complete", False)
+                "is_complete": data.get("is_complete", False),
+                "debug": {
+                    "is_complete_value": data.get("is_complete"),
+                    "is_complete_type": str(type(data.get("is_complete"))),
+                    "is_complete_truthy": bool(data.get("is_complete")),
+                    "all_answers_present": bool(data.get("all_answers"))
+                }
             }), 200
         )))
 
