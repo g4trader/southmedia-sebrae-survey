@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
-import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, AlertTriangle, Zap, CheckCircle, BarChart3 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
+import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3 } from 'lucide-react';
 
 interface SurveyResponse {
   id: string;
   timestamp: string;
   session_id: string;
   campaign_id: string | null;
-  audience_type?: 'small_business' | 'general_public' | 'all' | string;
+  audience_type?: 'small_business' | 'general_public' | 'all' | string; // Novo campo
   answers: {
     q1: string;
     q2: string;
@@ -26,25 +26,7 @@ interface SurveyResponse {
   };
 }
 
-interface ProgressiveResponse {
-  id: string;
-  session_id: string;
-  question_number: number;
-  answer: string;
-  is_complete: boolean;
-  timestamp: string;
-  campaign_id: string;
-  audience_type: string;
-  user_agent: string;
-  referer: string;
-  origin: string;
-  page_url: string;
-  all_answers?: Record<string, string>;
-  completion_timestamp?: string;
-}
-
 interface DashboardData {
-  // Dados principais (aba 1) - estrutura do v2
   totalResponses: number;
   smallBusinessResponses: number;
   generalPublicResponses: number;
@@ -53,7 +35,6 @@ interface DashboardData {
   smallBusinessStats: Record<string, Record<string, number>>;
   generalPublicStats: Record<string, Record<string, number>>;
   dailyData: Array<{ date: string; smallBusiness: number; generalPublic: number; smallBusinessTarget: number; generalPublicTarget: number }>;
-  hourlyData: Array<{ hour: string; count: number }>;
   deviceStats: Record<string, number>;
   completionRate: number;
   avgTimeMinutes: number;
@@ -61,27 +42,6 @@ interface DashboardData {
   themeScores: {
     smallBusiness: Record<string, number>;
     generalPublic: Record<string, number>;
-  };
-  
-  // Dados progressivos (aba 2)
-  progressiveResponses: number;
-  completedProgressive: number;
-  progressiveStats: {
-    totalSessions: number;
-    completedSessions: number;
-    abandonedSessions: number;
-    completionRate: number;
-    averageTimePerQuestion: number;
-    questionAbandonmentRate: Record<number, number>;
-    hourlyProgression: Array<{ hour: string; progressive: number; complete: number }>;
-    campaignStats: Record<string, {
-      total: number;
-      completed: number;
-      abandoned: number;
-      completionRate: number;
-    }>;
-    deviceStats: Record<string, number>;
-    realTimeData: ProgressiveResponse[];
   };
 }
 
@@ -135,62 +95,26 @@ export default function DashboardV3() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
-  const [activeTab, setActiveTab] = useState<'main' | 'progressive'>('main');
-  const [nextUpdate, setNextUpdate] = useState<Date>(new Date(Date.now() + 300000));
-  const [timeUntilUpdate, setTimeUntilUpdate] = useState<string>('5:00');
 
   // CSS otimizado para estabilizar Recharts sem quebrar funcionalidade
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      /* Estabilizar elementos Recharts - CSS mais agressivo */
-      .recharts-wrapper *,
-      .recharts-surface *,
+      /* Estabilizar elementos Recharts */
       .recharts-cartesian-axis-tick,
       .recharts-cartesian-axis-tick-value,
-      .recharts-text,
-      .recharts-label,
-      .recharts-tooltip-wrapper,
-      .recharts-legend-wrapper,
-      .recharts-bar,
-      .recharts-line,
-      .recharts-area,
-      .recharts-dot,
-      .recharts-active-dot,
-      .recharts-reference-line,
-      .recharts-reference-dot,
-      .recharts-cartesian-grid,
-      .recharts-polar-grid,
-      .recharts-polar-angle-axis,
-      .recharts-polar-radius-axis,
-      .recharts-radial-bar,
-      .recharts-radar,
-      .recharts-scatter,
-      .recharts-treemap,
-      .recharts-sankey,
-      .recharts-funnel,
-      .recharts-sunburst {
+      .recharts-text {
         animation: none !important;
         transition: none !important;
         transform: none !important;
         opacity: 1 !important;
         visibility: visible !important;
       }
-      
       .recharts-wrapper,
-      .recharts-surface,
-      .recharts-cartesian-grid,
-      .recharts-polar-grid {
+      .recharts-surface {
         animation: none !important;
         transition: none !important;
       }
-      
-      /* Remover todas as animações e transições do Recharts */
-      [class*="recharts"] * {
-        animation: none !important;
-        transition: none !important;
-      }
-      
       /* Remover transições problemáticas apenas dos elementos de UI */
       [class*="transition-all"],
       [class*="duration-300"],
@@ -209,13 +133,10 @@ export default function DashboardV3() {
   // Configurações da campanha
   const campaignEndDate = useMemo(() => new Date('2025-10-31'), []);
   const targetPerAudience = 1500;
-  const campaignStartDate = useMemo(() => new Date('2025-09-01'), []);
+  const campaignStartDate = useMemo(() => new Date('2025-09-01'), []); // Assumindo início em setembro
 
   const fetchData = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       // Buscar dados da API V1 (dados gerais)
       const responseV1 = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/responses');
       if (!responseV1.ok) throw new Error('Erro ao buscar dados V1');
@@ -224,23 +145,14 @@ export default function DashboardV3() {
       const responseV2 = await fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/responses');
       if (!responseV2.ok) throw new Error('Erro ao buscar dados V2');
       
-      // Buscar dados progressivos
-      const progressiveRes = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/progressive-responses');
-      if (!progressiveRes.ok) throw new Error('Erro ao buscar dados progressivos');
-      
       const dataV1 = await responseV1.json();
       const dataV2 = await responseV2.json();
-      const progressiveData = await progressiveRes.json();
       
       // Combinar dados das duas APIs
       const allResponses = [
         ...(dataV1.responses || []).map((r: SurveyResponse) => ({ ...r, audience_type: 'all' })),
         ...(dataV2.responses || [])
       ];
-      
-      // Processar dados progressivos
-      const progressiveResponses: ProgressiveResponse[] = progressiveData.responses || [];
-      const completedProgressive = progressiveResponses.filter(p => p.is_complete).length;
       
       // Processar dados combinados
       const responses = allResponses.filter((response: SurveyResponse) => {
@@ -307,100 +219,8 @@ export default function DashboardV3() {
       // Calcular dados diários com meta
       const dailyData = calculateDailyData(responsesWithAudience, campaignStartDate, campaignEndDate, targetPerAudience);
 
-      // Calcular dados por hora
-      const hourlyData: Array<{ hour: string; count: number }> = [];
-      const hourCounts: Record<string, number> = {};
-      
-      responsesWithAudience.forEach(response => {
-        const hour = new Date(response.timestamp).getHours();
-        const hourKey = `${hour.toString().padStart(2, '0')}:00`;
-        hourCounts[hourKey] = (hourCounts[hourKey] || 0) + 1;
-      });
-      
-      for (let h = 0; h < 24; h++) {
-        const hourKey = `${h.toString().padStart(2, '0')}:00`;
-        hourlyData.push({ hour: hourKey, count: hourCounts[hourKey] || 0 });
-      }
-
       // Calcular notas por tema
       const themeScores = calculateThemeScores(smallBusinessStats, generalPublicStats);
-
-      // Calcular estatísticas progressivas
-      const progressiveStats = {
-        totalSessions: new Set(progressiveResponses.map(p => p.session_id)).size,
-        completedSessions: new Set(progressiveResponses.filter(p => p.is_complete).map(p => p.session_id)).size,
-        abandonedSessions: 0,
-        completionRate: 0,
-        averageTimePerQuestion: 0,
-        questionAbandonmentRate: {} as Record<number, number>,
-        hourlyProgression: [] as Array<{ hour: string; progressive: number; complete: number }>,
-        campaignStats: {} as Record<string, { total: number; completed: number; abandoned: number; completionRate: number }>,
-        deviceStats: {} as Record<string, number>,
-        realTimeData: progressiveResponses.slice(0, 20)
-      };
-
-      // Calcular taxa de abandono progressivo
-      progressiveStats.abandonedSessions = progressiveStats.totalSessions - progressiveStats.completedSessions;
-      progressiveStats.completionRate = progressiveStats.totalSessions > 0 
-        ? (progressiveStats.completedSessions / progressiveStats.totalSessions) * 100 
-        : 0;
-
-      // Calcular abandono por pergunta
-      for (let q = 1; q <= 6; q++) {
-        const questionResponses = progressiveResponses.filter(p => p.question_number === q);
-        const uniqueSessions = new Set(questionResponses.map(p => p.session_id));
-        const completedSessions = new Set(progressiveResponses.filter(p => p.is_complete).map(p => p.session_id));
-        const abandonedAtQ = uniqueSessions.size - Array.from(uniqueSessions).filter(s => completedSessions.has(s)).length;
-        progressiveStats.questionAbandonmentRate[q] = uniqueSessions.size > 0 ? (abandonedAtQ / uniqueSessions.size) * 100 : 0;
-      }
-
-      // Calcular dados por hora para progressivas
-      const hourProgression: Record<string, { progressive: number; complete: number }> = {};
-      progressiveResponses.forEach(p => {
-        const hour = new Date(p.timestamp).getHours();
-        const hourKey = `${hour.toString().padStart(2, '0')}:00`;
-        if (!hourProgression[hourKey]) hourProgression[hourKey] = { progressive: 0, complete: 0 };
-        hourProgression[hourKey].progressive++;
-        if (p.is_complete) hourProgression[hourKey].complete++;
-      });
-
-      for (let h = 0; h < 24; h++) {
-        const hourKey = `${h.toString().padStart(2, '0')}:00`;
-        progressiveStats.hourlyProgression.push({
-          hour: hourKey,
-          progressive: hourProgression[hourKey]?.progressive || 0,
-          complete: hourProgression[hourKey]?.complete || 0
-        });
-      }
-
-      // Calcular estatísticas por campanha progressivas
-      const campaignProgressiveStats: Record<string, { total: number; completed: number; abandoned: number; completionRate: number }> = {};
-      progressiveResponses.forEach(p => {
-        const campaign = p.campaign_id || 'unknown';
-        if (!campaignProgressiveStats[campaign]) {
-          campaignProgressiveStats[campaign] = { total: 0, completed: 0, abandoned: 0, completionRate: 0 };
-        }
-        campaignProgressiveStats[campaign].total++;
-        if (p.is_complete) campaignProgressiveStats[campaign].completed++;
-      });
-
-      Object.keys(campaignProgressiveStats).forEach(campaign => {
-        const stats = campaignProgressiveStats[campaign];
-        stats.abandoned = stats.total - stats.completed;
-        stats.completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
-      });
-      progressiveStats.campaignStats = campaignProgressiveStats;
-
-      // Calcular estatísticas de dispositivos progressivas
-      const deviceProgressiveStats: Record<string, number> = {};
-      progressiveResponses.forEach(p => {
-        const ua = p.user_agent || '';
-        let device = 'Desktop';
-        if (ua.includes('Mobile')) device = 'Mobile';
-        else if (ua.includes('Tablet')) device = 'Tablet';
-        deviceProgressiveStats[device] = (deviceProgressiveStats[device] || 0) + 1;
-      });
-      progressiveStats.deviceStats = deviceProgressiveStats;
 
       const completionRate = responses.length > 0 ? 100 : 0;
       const avgTimeMinutes = responses.length > 0 ? Math.round(responses.length * 0.5) : 0;
@@ -415,15 +235,11 @@ export default function DashboardV3() {
         smallBusinessStats,
         generalPublicStats,
         dailyData,
-        hourlyData,
         deviceStats,
         completionRate,
         avgTimeMinutes,
         systemStatus,
-        themeScores,
-        progressiveResponses: progressiveResponses.length,
-        completedProgressive,
-        progressiveStats
+        themeScores
       });
 
       setLastUpdate(new Date());
@@ -496,25 +312,6 @@ export default function DashboardV3() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Timer para próxima atualização
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const diff = nextUpdate.getTime() - now.getTime();
-      
-      if (diff <= 0) {
-        setNextUpdate(new Date(Date.now() + 300000));
-        return;
-      }
-      
-      const minutes = Math.floor(diff / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-      setTimeUntilUpdate(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -523,7 +320,7 @@ export default function DashboardV3() {
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-transparent bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto"></div>
             <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-white animate-spin"></div>
           </div>
-          <p className="mt-6 text-white/80 text-lg font-medium">Carregando dashboard...</p>
+          <p className="mt-6 text-white/80 text-lg font-medium">Carregando dashboard v3...</p>
           <div className="mt-2 w-32 h-1 bg-white/20 rounded-full mx-auto overflow-hidden">
             <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse"></div>
           </div>
@@ -541,7 +338,7 @@ export default function DashboardV3() {
           <p className="text-white/70 mb-6">{error}</p>
           <button 
             onClick={fetchData}
-            className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl shadow-lg"
           >
             Tentar novamente
           </button>
@@ -591,7 +388,7 @@ export default function DashboardV3() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
                   South Media - Dashboard V3
                 </h1>
-                <p className="text-purple-300">Pesquisa Sebrae - Análise por Público + Progressiva</p>
+                <p className="text-purple-300">Pesquisa Sebrae - Análise por Público</p>
               </div>
             </div>
             <div className="flex items-center space-x-6">
@@ -600,13 +397,10 @@ export default function DashboardV3() {
                 <p className="text-sm font-medium text-white">
                   {lastUpdate.toLocaleTimeString('pt-BR')}
                 </p>
-                <p className="text-xs text-purple-400">
-                  Próxima em: {timeUntilUpdate}
-                </p>
               </div>
               <button 
                 onClick={fetchData}
-                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl transition-all duration-300 shadow-lg"
+                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg"
                 title="Atualizar dados agora"
               >
                 <RefreshCw className="w-5 h-5" />
@@ -617,630 +411,473 @@ export default function DashboardV3() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Toggle de Abas */}
+        {/* Toggle de Público */}
         <div className="mb-8">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
             <div className="flex items-center justify-center space-x-4">
               <button
-                onClick={() => setActiveTab('main')}
+                onClick={() => setSelectedAudience('all')}
                 className={`px-6 py-3 rounded-xl font-semibold ${
-                  activeTab === 'main'
+                  selectedAudience === 'all'
                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
                     : 'bg-white/10 text-white/70'
                 }`}
               >
                 <Users className="w-5 h-5 inline mr-2" />
-                Dashboard Principal
+                Ambos os Públicos
               </button>
               <button
-                onClick={() => setActiveTab('progressive')}
+                onClick={() => setSelectedAudience('small_business')}
                 className={`px-6 py-3 rounded-xl font-semibold ${
-                  activeTab === 'progressive'
+                  selectedAudience === 'small_business'
                     ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
                     : 'bg-white/10 text-white/70'
                 }`}
               >
-                <Zap className="w-5 h-5 inline mr-2" />
-                Dados Progressivos
+                <Target className="w-5 h-5 inline mr-2" />
+                Pequenos Negócios
+              </button>
+              <button
+                onClick={() => setSelectedAudience('general_public')}
+                className={`px-6 py-3 rounded-xl font-semibold ${
+                  selectedAudience === 'general_public'
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                    : 'bg-white/10 text-white/70'
+                }`}
+              >
+                <Users className="w-5 h-5 inline mr-2" />
+                Sociedade
               </button>
             </div>
           </div>
         </div>
 
-        {/* Toggle de Público (apenas na aba principal) */}
-        {activeTab === 'main' && (
-          <div className="mb-8">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
-              <div className="flex items-center justify-center space-x-4">
-                <button
-                  onClick={() => setSelectedAudience('all')}
-                  className={`px-6 py-3 rounded-xl font-semibold ${
-                    selectedAudience === 'all'
-                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-white/10 text-white/70'
-                  }`}
-                >
-                  <Users className="w-5 h-5 inline mr-2" />
-                  Ambos os Públicos
-                </button>
-                <button
-                  onClick={() => setSelectedAudience('small_business')}
-                  className={`px-6 py-3 rounded-xl font-semibold ${
-                    selectedAudience === 'small_business'
-                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
-                      : 'bg-white/10 text-white/70'
-                  }`}
-                >
-                  <Target className="w-5 h-5 inline mr-2" />
-                  Pequenos Negócios
-                </button>
-                <button
-                  onClick={() => setSelectedAudience('general_public')}
-                  className={`px-6 py-3 rounded-xl font-semibold ${
-                    selectedAudience === 'general_public'
-                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-white/10 text-white/70'
-                  }`}
-                >
-                  <Users className="w-5 h-5 inline mr-2" />
-                  Sociedade
-                </button>
+        {/* Cards de Métricas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-300">RESPOSTAS {selectedAudience === 'all' ? 'TOTAIS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</p>
+                <p className="text-4xl font-bold text-white mt-2">{filteredData.count}</p>
+                {selectedAudience === 'all' && (
+                  <p className="text-xs text-purple-400 mt-1">
+                    {data.smallBusinessResponses} pequenos negócios + {data.generalPublicResponses} sociedade
+                  </p>
+                )}
+              </div>
+              <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Users className="h-7 w-7 text-white" />
               </div>
             </div>
           </div>
-        )}
 
-        {/* Aba Principal */}
-        {activeTab === 'main' && (
-          <>
-            {/* Cards de Métricas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-purple-300">RESPOSTAS {selectedAudience === 'all' ? 'TOTAIS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</p>
-                    <p className="text-4xl font-bold text-white mt-2">{filteredData.count + (selectedAudience === 'all' ? data.completedProgressive : 0)}</p>
-                    {selectedAudience === 'all' && (
-                      <p className="text-xs text-purple-400 mt-1">
-                        {data.smallBusinessResponses} pequenos negócios + {data.generalPublicResponses} sociedade + {data.completedProgressive} progressivas
-                      </p>
-                    )}
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                    <Users className="h-7 w-7 text-white" />
-                  </div>
-                </div>
+          <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-300">META DIÁRIA</p>
+                <p className="text-4xl font-bold text-white mt-2">
+                  {Math.round(1500 / Math.ceil((campaignEndDate.getTime() - campaignStartDate.getTime()) / (1000 * 60 * 60 * 24)))}
+                </p>
+                <p className="text-xs text-green-400 mt-1">por público</p>
               </div>
-
-              <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-300">META DIÁRIA</p>
-                    <p className="text-4xl font-bold text-white mt-2">
-                      {Math.round(1500 / Math.ceil((campaignEndDate.getTime() - campaignStartDate.getTime()) / (1000 * 60 * 60 * 24)))}
-                    </p>
-                    <p className="text-xs text-green-400 mt-1">por público</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                    <Target className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-orange-300">PROGRESSO META</p>
-                    <p className="text-4xl font-bold text-white mt-2">
-                      {Math.round((filteredData.count / 1500) * 100)}%
-                    </p>
-                    <p className="text-xs text-orange-400 mt-1">de 1500 respostas</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-300">NOTA MÉDIA</p>
-                    <p className="text-4xl font-bold text-white mt-2">
-                      {selectedAudience === 'all' ? '7.2' : 
-                       selectedAudience === 'small_business' ? 
-                       (Object.values(data.themeScores.smallBusiness).reduce((a, b) => a + b, 0) / 6).toFixed(1) :
-                       (Object.values(data.themeScores.generalPublic).reduce((a, b) => a + b, 0) / 6).toFixed(1)}
-                    </p>
-                    <p className="text-xs text-blue-400 mt-1">pontuação geral</p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                    <Award className="h-7 w-7 text-white" />
-                  </div>
-                </div>
+              <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                <Target className="h-7 w-7 text-white" />
               </div>
             </div>
+          </div>
 
-            {/* Gráfico Diário com Meta */}
-            <div className="mb-8">
-              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">EVOLUÇÃO DIÁRIA - META VS REALIZADO</h3>
-                  <Calendar className="w-6 h-6 text-purple-400" />
-                </div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineChart 
-                    data={data.dailyData} 
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
-                    syncId="dashboard-charts"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      interval="preserveStartEnd"
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        border: '1px solid rgba(168,85,247,0.3)',
-                        borderRadius: '12px',
-                        color: 'white',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="smallBusiness" 
-                      stroke="#3B82F6" 
-                      strokeWidth={3}
-                      name="Pequenos Negócios"
-                      dot={false}
-                      activeDot={{ r: 4, stroke: '#3B82F6', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="generalPublic" 
-                      stroke="#10B981" 
-                      strokeWidth={3}
-                      name="Sociedade"
-                      dot={false}
-                      activeDot={{ r: 4, stroke: '#10B981', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="smallBusinessTarget" 
-                      stroke="#EF4444" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      name="Meta Pequenos Negócios"
-                      dot={false}
-                      activeDot={{ r: 3, stroke: '#EF4444', strokeWidth: 2 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="generalPublicTarget" 
-                      stroke="#F59E0B" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      name="Meta Sociedade"
-                      dot={false}
-                      activeDot={{ r: 3, stroke: '#F59E0B', strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+          <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-orange-300">PROGRESSO META</p>
+                <p className="text-4xl font-bold text-white mt-2">
+                  {Math.round((filteredData.count / 1500) * 100)}%
+                </p>
+                <p className="text-xs text-orange-400 mt-1">de 1500 respostas</p>
+              </div>
+              <div className="w-14 h-14 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-7 w-7 text-white" />
               </div>
             </div>
+          </div>
 
-            {/* Gráficos de Evolução por Público */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Pequenos Negócios */}
-              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-lg rounded-2xl border border-blue-500/20 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">PEQUENOS NEGÓCIOS - META VS REALIZADO</h3>
-                  <Target className="w-6 h-6 text-blue-400" />
-                </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart 
-                    data={data.dailyData} 
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
-                    syncId="dashboard-charts"
-                  >
-                    <defs>
-                      <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
-                      </linearGradient>
-                      <linearGradient id="colorSmallBusinessTarget" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      interval="preserveStartEnd"
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        border: '1px solid rgba(59,130,246,0.3)',
-                        borderRadius: '12px',
-                        color: 'white',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="smallBusiness" 
-                      stroke="#3B82F6" 
-                      strokeWidth={3}
-                      fillOpacity={1} 
-                      fill="url(#colorSmallBusiness)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="smallBusinessTarget" 
-                      stroke="#EF4444" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      fillOpacity={0.3} 
-                      fill="url(#colorSmallBusinessTarget)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-blue-300">
-                    Progresso: {data.smallBusinessResponses} / 1500 ({Math.round((data.smallBusinessResponses / 1500) * 100)}%)
-                  </p>
-                </div>
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-300">NOTA MÉDIA</p>
+                <p className="text-4xl font-bold text-white mt-2">
+                  {selectedAudience === 'all' ? '7.2' : 
+                   selectedAudience === 'small_business' ? 
+                   (Object.values(data.themeScores.smallBusiness).reduce((a, b) => a + b, 0) / 6).toFixed(1) :
+                   (Object.values(data.themeScores.generalPublic).reduce((a, b) => a + b, 0) / 6).toFixed(1)}
+                </p>
+                <p className="text-xs text-blue-400 mt-1">pontuação geral</p>
               </div>
-
-              {/* Sociedade */}
-              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-lg rounded-2xl border border-green-500/20 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">SOCIEDADE - META VS REALIZADO</h3>
-                  <Users className="w-6 h-6 text-green-400" />
-                </div>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart 
-                    data={data.dailyData} 
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
-                    syncId="dashboard-charts"
-                  >
-                    <defs>
-                      <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
-                      </linearGradient>
-                      <linearGradient id="colorGeneralPublicTarget" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      interval="preserveStartEnd"
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis 
-                      stroke="rgba(255,255,255,0.6)" 
-                      tick={{ fontSize: 12 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        border: '1px solid rgba(16,185,129,0.3)',
-                        borderRadius: '12px',
-                        color: 'white',
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                      }}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="generalPublic" 
-                      stroke="#10B981" 
-                      strokeWidth={3}
-                      fillOpacity={1} 
-                      fill="url(#colorGeneralPublic)" 
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="generalPublicTarget" 
-                      stroke="#F59E0B" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                      fillOpacity={0.3} 
-                      fill="url(#colorGeneralPublicTarget)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-                <div className="mt-4 text-center">
-                  <p className="text-sm text-green-300">
-                    Progresso: {data.generalPublicResponses} / 1500 ({Math.round((data.generalPublicResponses / 1500) * 100)}%)
-                  </p>
-                </div>
+              <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                <Award className="h-7 w-7 text-white" />
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Tabela de Notas por Tema */}
-            <div className="mb-8">
-              <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-white">NOTAS MÉDIAS POR TEMA E PÚBLICO</h3>
-                    <BarChart3 className="w-6 h-6 text-purple-400" />
-                  </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-700/50">
-                    <thead className="bg-gray-800/30">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                          TEMA
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
-                          PEQUENOS NEGÓCIOS
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-green-300 uppercase tracking-wider">
-                          SOCIEDADE
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                          DIFERENÇA
-                        </th>
+        {/* Gráfico Diário com Meta */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">EVOLUÇÃO DIÁRIA - META VS REALIZADO</h3>
+              <Calendar className="w-6 h-6 text-purple-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(168,85,247,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="smallBusiness" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  name="Pequenos Negócios"
+                  dot={false}
+                  activeDot={{ r: 4, stroke: '#3B82F6', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="generalPublic" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  name="Sociedade"
+                  dot={false}
+                  activeDot={{ r: 4, stroke: '#10B981', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="smallBusinessTarget" 
+                  stroke="#EF4444" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Meta Pequenos Negócios"
+                  dot={false}
+                  activeDot={{ r: 3, stroke: '#EF4444', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="generalPublicTarget" 
+                  stroke="#F59E0B" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Meta Sociedade"
+                  dot={false}
+                  activeDot={{ r: 3, stroke: '#F59E0B', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Gráficos de Evolução por Público */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Pequenos Negócios */}
+          <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-lg rounded-2xl border border-blue-500/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">PEQUENOS NEGÓCIOS - META VS REALIZADO</h3>
+              <Target className="w-6 h-6 text-blue-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <defs>
+                  <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                  </linearGradient>
+                  <linearGradient id="colorSmallBusinessTarget" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="smallBusiness" 
+                  stroke="#3B82F6" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorSmallBusiness)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="smallBusinessTarget" 
+                  stroke="#EF4444" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  fillOpacity={0.3} 
+                  fill="url(#colorSmallBusinessTarget)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-blue-300">
+                Progresso: {data.smallBusinessResponses} / 1500 ({Math.round((data.smallBusinessResponses / 1500) * 100)}%)
+              </p>
+            </div>
+          </div>
+
+          {/* Sociedade */}
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-lg rounded-2xl border border-green-500/20 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">SOCIEDADE - META VS REALIZADO</h3>
+              <Users className="w-6 h-6 text-green-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart 
+                data={data.dailyData} 
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                syncId="dashboard-charts"
+              >
+                <defs>
+                  <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                  </linearGradient>
+                  <linearGradient id="colorGeneralPublicTarget" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="rgba(255,255,255,0.6)" 
+                  tick={{ fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: '12px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="generalPublic" 
+                  stroke="#10B981" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorGeneralPublic)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="generalPublicTarget" 
+                  stroke="#F59E0B" 
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  fillOpacity={0.3} 
+                  fill="url(#colorGeneralPublicTarget)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="mt-4 text-center">
+              <p className="text-sm text-green-300">
+                Progresso: {data.generalPublicResponses} / 1500 ({Math.round((data.generalPublicResponses / 1500) * 100)}%)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabela de Notas por Tema */}
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold text-white">NOTAS MÉDIAS POR TEMA E PÚBLICO</h3>
+                <BarChart3 className="w-6 h-6 text-purple-400" />
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-700/50">
+                <thead className="bg-gray-800/30">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                      TEMA
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
+                      PEQUENOS NEGÓCIOS
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-300 uppercase tracking-wider">
+                      SOCIEDADE
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                      DIFERENÇA
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-transparent divide-y divide-gray-700/30">
+                  {Object.entries(questionLabels).map(([question, label]) => {
+                    const smallBusinessScore = data.themeScores.smallBusiness[question] || 0;
+                    const generalPublicScore = data.themeScores.generalPublic[question] || 0;
+                    const difference = smallBusinessScore - generalPublicScore;
+                    
+                    return (
+                      <tr key={question}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                          {label}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            smallBusinessScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                            smallBusinessScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                            'bg-red-500/20 text-red-300 border border-red-500/30'
+                          }`}>
+                            {smallBusinessScore.toFixed(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            generalPublicScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                            generalPublicScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                            'bg-red-500/20 text-red-300 border border-red-500/30'
+                          }`}>
+                            {generalPublicScore.toFixed(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            Math.abs(difference) < 0.5 ? 'bg-gray-500/20 text-gray-300 border border-gray-500/30' :
+                            difference > 0 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                            'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                          }`}>
+                            {difference > 0 ? '+' : ''}{difference.toFixed(1)}
+                          </span>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="bg-transparent divide-y divide-gray-700/30">
-                      {Object.entries(questionLabels).map(([question, label]) => {
-                        const smallBusinessScore = data.themeScores.smallBusiness[question] || 0;
-                        const generalPublicScore = data.themeScores.generalPublic[question] || 0;
-                        const difference = smallBusinessScore - generalPublicScore;
-                        
-                        return (
-                          <tr key={question}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                              {label}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                smallBusinessScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                                smallBusinessScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
-                                'bg-red-500/20 text-red-300 border border-red-500/30'
-                              }`}>
-                                {smallBusinessScore.toFixed(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                generalPublicScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                                generalPublicScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
-                                'bg-red-500/20 text-red-300 border border-red-500/30'
-                              }`}>
-                                {generalPublicScore.toFixed(1)}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                                Math.abs(difference) < 0.5 ? 'bg-gray-500/20 text-gray-300 border border-gray-500/30' :
-                                difference > 0 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                                'bg-orange-500/20 text-orange-300 border border-orange-500/30'
-                              }`}>
-                                {difference > 0 ? '+' : ''}{difference.toFixed(1)}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
+          </div>
+        </div>
 
-            {/* Respostas por Pergunta (Filtrado por Público) */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-8">ANÁLISE POR PERGUNTA - {selectedAudience === 'all' ? 'AMBOS OS PÚBLICOS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</h2>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {Object.entries(questionLabels).map(([question, label], index) => (
-                  <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-semibold text-white">{label}</h3>
-                      <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
-                    </div>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart 
-                        data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
-                          answer: answerLabels[answer as keyof typeof answerLabels] || answer,
-                          count
-                        }))}
-                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
-                        syncId="dashboard-charts"
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                        <XAxis 
-                          dataKey="answer" 
-                          angle={-45} 
-                          textAnchor="end" 
-                          height={60} 
-                          stroke="rgba(255,255,255,0.6)"
-                          tick={{ fontSize: 10 }}
-                          interval="preserveStartEnd"
-                          axisLine={false}
-                          tickLine={false}
-                        />
-                        <YAxis 
-                          stroke="rgba(255,255,255,0.6)" 
-                          tick={{ fontSize: 10 }}
-                          axisLine={false}
-                          tickLine={false}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'rgba(0,0,0,0.8)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            borderRadius: '12px',
-                            color: 'white',
-                            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-                          }}
-                        />
-                        <Bar 
-                          dataKey="count" 
-                          fill={COLORS[index % COLORS.length]}
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Aba Progressiva */}
-        {activeTab === 'progressive' && (
-          <>
-            {/* Cards de Métricas Progressivas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-purple-300">SESSÕES TOTAIS</p>
-                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.totalSessions}</p>
-                    <p className="text-xs text-purple-400 mt-1">
-                      {data.progressiveResponses} respostas
-                    </p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                    <Users className="h-7 w-7 text-white" />
-                  </div>
+        {/* Respostas por Pergunta (Filtrado por Público) */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-8">ANÁLISE POR PERGUNTA - {selectedAudience === 'all' ? 'AMBOS OS PÚBLICOS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {Object.entries(questionLabels).map(([question, label], index) => (
+              <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-white">{label}</h3>
+                  <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
                 </div>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart 
+                    data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
+                      answer: answerLabels[answer as keyof typeof answerLabels] || answer,
+                      count
+                    }))}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                    syncId="dashboard-charts"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="answer" 
+                      angle={-45} 
+                      textAnchor="end" 
+                      height={60} 
+                      stroke="rgba(255,255,255,0.6)"
+                      tick={{ fontSize: 10 }}
+                      interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 10 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="count" 
+                      fill={COLORS[index % COLORS.length]}
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-
-              <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-green-300">SESSÕES COMPLETAS</p>
-                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.completedSessions}</p>
-                    <p className="text-xs text-green-400 mt-1">
-                      {data.completedProgressive} respostas
-                    </p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                    <CheckCircle className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-red-300">SESSÕES ABANDONADAS</p>
-                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.abandonedSessions}</p>
-                    <p className="text-xs text-red-400 mt-1">
-                      {((data.progressiveStats.abandonedSessions / data.progressiveStats.totalSessions) * 100).toFixed(1)}% do total
-                    </p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
-                    <AlertTriangle className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-300">TAXA DE CONCLUSÃO</p>
-                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.completionRate.toFixed(1)}%</p>
-                    <p className="text-xs text-blue-400 mt-1">
-                      Progressivas
-                    </p>
-                  </div>
-                  <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                    <Target className="h-7 w-7 text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Gráfico de Progressão por Hora */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 mb-8">
-              <h3 className="text-lg font-semibold text-white mb-4">📈 Progressão por Hora</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={data.progressiveStats.hourlyProgression}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="hour" stroke="#9CA3AF" />
-                  <YAxis stroke="#9CA3AF" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1F2937', 
-                      border: '1px solid #374151',
-                      borderRadius: '8px',
-                      color: '#F9FAFB'
-                    }} 
-                  />
-                  <Bar dataKey="progressive" fill="#A855F7" name="Progressivas" />
-                  <Bar dataKey="complete" fill="#10B981" name="Completas" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Dados em Tempo Real */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">⚡ Dados em Tempo Real</h3>
-              <div className="space-y-3">
-                {data.progressiveStats.realTimeData.slice(0, 10).map((response) => (
-                  <div key={response.id} className="bg-white/5 rounded-lg p-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-3 h-3 rounded-full ${response.is_complete ? 'bg-green-500' : 'bg-blue-500'}`}></div>
-                      <div>
-                        <p className="text-sm font-medium text-white">
-                          {response.campaign_id} - Pergunta {response.question_number}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(response.timestamp).toLocaleString('pt-BR')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-300">
-                        {answerLabels[response.answer as keyof typeof answerLabels] || response.answer}
-                      </p>
-                      <p className={`text-xs font-medium ${response.is_complete ? 'text-green-400' : 'text-blue-400'}`}>
-                        {response.is_complete ? 'Completa' : 'Progressiva'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );
