@@ -145,7 +145,9 @@ def handle_progressive_data(data):
                     "is_complete_value": data.get("is_complete"),
                     "is_complete_type": str(type(data.get("is_complete"))),
                     "is_complete_truthy": bool(data.get("is_complete")),
-                    "all_answers_present": bool(data.get("all_answers"))
+                    "all_answers_present": bool(data.get("all_answers")),
+                    "condition_entered": is_complete,
+                    "stored_value": stored
                 }
             }), 200
         )))
