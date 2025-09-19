@@ -49,10 +49,14 @@ def collect():
     is_progressive = "question_number" in data
     is_complete = data.get("is_complete", False)
     
+    print(f"MAIN: is_progressive={is_progressive}, is_complete={is_complete}, data_keys={list(data.keys())}")
+    
     # Se tem question_number, é sempre progressivo (mesmo que is_complete=true)
     if is_progressive:
+        print("MAIN: Chamando handle_progressive_data")
         return handle_progressive_data(data)
     else:
+        print("MAIN: Chamando handle_complete_data")
         return handle_complete_data(data)
 
 def handle_progressive_data(data):
