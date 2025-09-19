@@ -207,6 +207,11 @@ export default function DashboardV3() {
       const smallBusinessResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 0);
       const generalPublicResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 1);
 
+      // Separar dados progressivos completos por público
+      const completedProgressiveResponses = progressiveResponses.filter(p => p.is_complete);
+      const progressiveSmallBusiness = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 0);
+      const progressiveGeneralPublic = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 1);
+
       // Adicionar audience_type simulado
       const responsesWithAudience = responses.map((response: SurveyResponse, index: number) => ({
         ...response,
@@ -352,8 +357,8 @@ export default function DashboardV3() {
 
       setData({
         totalResponses: allResponses.length + completedProgressive, // Soma total incluindo progressivos completos
-        smallBusinessResponses: smallBusinessResponses.length,
-        generalPublicResponses: generalPublicResponses.length,
+        smallBusinessResponses: smallBusinessResponses.length + progressiveSmallBusiness.length, // Incluir progressivos
+        generalPublicResponses: generalPublicResponses.length + progressiveGeneralPublic.length, // Incluir progressivos
         responses: responsesWithAudience,
         questionStats,
         smallBusinessStats,
