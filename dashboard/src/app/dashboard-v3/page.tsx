@@ -165,7 +165,7 @@ export default function DashboardV3() {
       realResponses.forEach(response => {
         Object.entries(response.answers).forEach(([question, answer]) => {
           if (!questionStats[question]) questionStats[question] = {};
-          questionStats[question][answer] = (questionStats[question][answer] || 0) + 1;
+          questionStats[question][answer as string] = (questionStats[question][answer as string] || 0) + 1;
         });
       });
 
