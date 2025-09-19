@@ -264,6 +264,8 @@ label.opt .t{ flex:1; }
     const questionNumber = parseInt(questionName.replace('q', ''));
     const answer = e.target.value;
     
+    console.log(`📝 Pergunta ${questionNumber} respondida: ${answer}`);
+    
     // Envia dados progressivos
     await sendProgressiveData(questionNumber, answer);
   });
@@ -295,6 +297,9 @@ label.opt .t{ flex:1; }
       }
       payload.all_answers = allAnswers;
       payload.completion_timestamp = new Date().toISOString();
+      
+      // Log para debug
+      console.log('🎯 Última pergunta - enviando dados completos:', payload);
     }
 
     try {
@@ -305,7 +310,8 @@ label.opt .t{ flex:1; }
       });
 
       if(response.ok) {
-        console.log(`✅ Pergunta ${questionNumber} salva progressivamente`);
+        const result = await response.json();
+        console.log(`✅ Pergunta ${questionNumber} salva progressivamente:`, result);
       } else {
         console.warn(`⚠️ Falha ao salvar pergunta ${questionNumber}`);
         // Salva localmente como fallback
