@@ -740,7 +740,6 @@ export default function DashboardV3() {
                     data={data.dailyData} 
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
                     syncId="dashboard-charts"
-                    style={{ animation: 'none', transition: 'none' }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis 
@@ -822,7 +821,6 @@ export default function DashboardV3() {
                     data={data.dailyData} 
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
                     syncId="dashboard-charts"
-                    style={{ animation: 'none', transition: 'none' }}
                   >
                     <defs>
                       <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
@@ -895,7 +893,6 @@ export default function DashboardV3() {
                     data={data.dailyData} 
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
                     syncId="dashboard-charts"
-                    style={{ animation: 'none', transition: 'none' }}
                   >
                     <defs>
                       <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
