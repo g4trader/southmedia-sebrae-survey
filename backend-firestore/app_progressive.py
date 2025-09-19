@@ -98,7 +98,7 @@ def handle_progressive_data(data):
             
             # Se for a última pergunta (is_complete=True), também salvar na coleção principal
             print(f"DEBUG: is_complete={data.get('is_complete')}, all_answers={data.get('all_answers')}")
-            if data.get("is_complete") == True:
+            if data.get("is_complete"):
                 complete_doc_id = str(uuid.uuid4())
                 complete_row = {
                     "id": complete_doc_id,
