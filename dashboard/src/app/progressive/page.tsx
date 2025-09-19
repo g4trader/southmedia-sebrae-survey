@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { Users, TrendingUp, Clock, CheckCircle, Activity, Target, RefreshCw, Eye, AlertTriangle, Zap } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { Users, Clock, CheckCircle, Activity, Target, RefreshCw, Eye, AlertTriangle, Zap } from 'lucide-react';
 
 interface ProgressiveResponse {
   id: string;
@@ -39,7 +39,6 @@ interface ProgressiveStats {
   realTimeData: ProgressiveResponse[];
 }
 
-const COLORS = ['#A855F7', '#F97316', '#10B981', '#EF4444', '#8B5CF6', '#06B6D4'];
 
 const questionLabels = {
   1: 'Tecnologia e Inovação',
@@ -241,7 +240,6 @@ export default function ProgressiveDashboard() {
     };
   };
 
-  const filteredData = getFilteredCampaignData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">

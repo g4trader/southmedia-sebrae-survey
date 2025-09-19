@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
-import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3, AlertTriangle, Zap } from 'lucide-react';
+import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, AlertTriangle, Zap, CheckCircle } from 'lucide-react';
 
 interface SurveyResponse {
   id: string;
@@ -53,6 +53,7 @@ interface DashboardData {
   smallBusinessStats: Record<string, Record<string, number>>;
   generalPublicStats: Record<string, Record<string, number>>;
   dailyData: Array<{ date: string; smallBusiness: number; generalPublic: number; smallBusinessTarget: number; generalPublicTarget: number }>;
+  hourlyData: Array<{ hour: string; count: number }>;
   deviceStats: Record<string, number>;
   completionRate: number;
   avgTimeMinutes: number;
@@ -135,6 +136,8 @@ export default function DashboardV3() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
   const [activeTab, setActiveTab] = useState<'main' | 'progressive'>('main');
+  const [nextUpdate, setNextUpdate] = useState<Date>(new Date(Date.now() + 300000));
+  const [timeUntilUpdate, setTimeUntilUpdate] = useState<string>('5:00');
 
   // Configurações da campanha
   const campaignEndDate = useMemo(() => new Date('2025-10-31'), []);
@@ -237,6 +240,21 @@ export default function DashboardV3() {
       // Calcular dados diários com meta
       const dailyData = calculateDailyData(responsesWithAudience, campaignStartDate, campaignEndDate, targetPerAudience);
 
+      // Calcular dados por hora
+      const hourlyData: Array<{ hour: string; count: number }> = [];
+      const hourCounts: Record<string, number> = {};
+      
+      responsesWithAudience.forEach(response => {
+        const hour = new Date(response.timestamp).getHours();
+        const hourKey = `${hour.toString().padStart(2, '0')}:00`;
+        hourCounts[hourKey] = (hourCounts[hourKey] || 0) + 1;
+      });
+      
+      for (let h = 0; h < 24; h++) {
+        const hourKey = `${h.toString().padStart(2, '0')}:00`;
+        hourlyData.push({ hour: hourKey, count: hourCounts[hourKey] || 0 });
+      }
+
       // Calcular notas por tema
       const themeScores = calculateThemeScores(smallBusinessStats, generalPublicStats);
 
@@ -330,6 +348,7 @@ export default function DashboardV3() {
         smallBusinessStats,
         generalPublicStats,
         dailyData,
+        hourlyData,
         deviceStats,
         completionRate,
         avgTimeMinutes,
@@ -427,7 +446,7 @@ export default function DashboardV3() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [nextUpdate]);
+  }, []);
 
   if (loading) {
     return (
