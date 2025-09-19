@@ -143,21 +143,54 @@ export default function DashboardV3() {
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      /* Estabilizar elementos Recharts */
+      /* Estabilizar elementos Recharts - CSS mais agressivo */
+      .recharts-wrapper *,
+      .recharts-surface *,
       .recharts-cartesian-axis-tick,
       .recharts-cartesian-axis-tick-value,
-      .recharts-text {
+      .recharts-text,
+      .recharts-label,
+      .recharts-tooltip-wrapper,
+      .recharts-legend-wrapper,
+      .recharts-bar,
+      .recharts-line,
+      .recharts-area,
+      .recharts-dot,
+      .recharts-active-dot,
+      .recharts-reference-line,
+      .recharts-reference-dot,
+      .recharts-cartesian-grid,
+      .recharts-polar-grid,
+      .recharts-polar-angle-axis,
+      .recharts-polar-radius-axis,
+      .recharts-radial-bar,
+      .recharts-radar,
+      .recharts-scatter,
+      .recharts-treemap,
+      .recharts-sankey,
+      .recharts-funnel,
+      .recharts-sunburst {
         animation: none !important;
         transition: none !important;
         transform: none !important;
         opacity: 1 !important;
         visibility: visible !important;
       }
+      
       .recharts-wrapper,
-      .recharts-surface {
+      .recharts-surface,
+      .recharts-cartesian-grid,
+      .recharts-polar-grid {
         animation: none !important;
         transition: none !important;
       }
+      
+      /* Remover todas as animações e transições do Recharts */
+      [class*="recharts"] * {
+        animation: none !important;
+        transition: none !important;
+      }
+      
       /* Remover transições problemáticas apenas dos elementos de UI */
       [class*="transition-all"],
       [class*="duration-300"],
