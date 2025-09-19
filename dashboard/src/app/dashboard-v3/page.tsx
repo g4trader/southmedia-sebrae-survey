@@ -139,6 +139,39 @@ export default function DashboardV3() {
   const [nextUpdate, setNextUpdate] = useState<Date>(new Date(Date.now() + 300000));
   const [timeUntilUpdate, setTimeUntilUpdate] = useState<string>('5:00');
 
+  // CSS otimizado para estabilizar Recharts sem quebrar funcionalidade
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      /* Estabilizar elementos Recharts */
+      .recharts-cartesian-axis-tick,
+      .recharts-cartesian-axis-tick-value,
+      .recharts-text {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+      .recharts-wrapper,
+      .recharts-surface {
+        animation: none !important;
+        transition: none !important;
+      }
+      /* Remover transições problemáticas apenas dos elementos de UI */
+      [class*="transition-all"],
+      [class*="duration-300"],
+      [class*="duration-500"] {
+        transition: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
 
   // Configurações da campanha
   const campaignEndDate = useMemo(() => new Date('2025-10-31'), []);
