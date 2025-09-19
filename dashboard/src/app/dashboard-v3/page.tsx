@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
-import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
+import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3, CheckCircle } from 'lucide-react';
 
 interface SurveyResponse {
   id: string;
@@ -26,6 +26,23 @@ interface SurveyResponse {
   };
 }
 
+interface ProgressiveResponse {
+  id: string;
+  session_id: string;
+  question_number: number;
+  answer: string;
+  is_complete: boolean;
+  timestamp: string;
+  campaign_id: string;
+  audience_type: string;
+  user_agent: string;
+  referer: string;
+  origin: string;
+  page_url: string;
+  all_answers?: Record<string, string>;
+  completion_timestamp?: string;
+}
+
 interface DashboardData {
   totalResponses: number;
   smallBusinessResponses: number;
@@ -42,6 +59,26 @@ interface DashboardData {
   themeScores: {
     smallBusiness: Record<string, number>;
     generalPublic: Record<string, number>;
+  };
+  // Dados progressivos
+  progressiveResponses: number;
+  completedProgressive: number;
+  progressiveStats: {
+    totalSessions: number;
+    completedSessions: number;
+    abandonedSessions: number;
+    completionRate: number;
+    averageTimePerQuestion: number;
+    questionAbandonmentRate: Record<number, number>;
+    hourlyProgression: Array<{ hour: string; progressive: number; complete: number }>;
+    campaignStats: Record<string, {
+      total: number;
+      completed: number;
+      abandoned: number;
+      completionRate: number;
+    }>;
+    deviceStats: Record<string, number>;
+    realTimeData: ProgressiveResponse[];
   };
 }
 
@@ -95,6 +132,7 @@ export default function DashboardV3() {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
+  const [activeTab, setActiveTab] = useState<'main' | 'progressive'>('main');
 
   // CSS otimizado para estabilizar Recharts sem quebrar funcionalidade
   useEffect(() => {
@@ -145,8 +183,13 @@ export default function DashboardV3() {
       const responseV2 = await fetch('https://sebrae-survey-api-v2-609095880025.us-central1.run.app/responses');
       if (!responseV2.ok) throw new Error('Erro ao buscar dados V2');
       
+      // Buscar dados progressivos
+      const progressiveRes = await fetch('https://sebrae-survey-api-fs-609095880025.southamerica-east1.run.app/progressive-responses');
+      if (!progressiveRes.ok) throw new Error('Erro ao buscar dados progressivos');
+      
       const dataV1 = await responseV1.json();
       const dataV2 = await responseV2.json();
+      const progressiveData = await progressiveRes.json();
       
       // Combinar dados das duas APIs
       const allResponses = [
@@ -222,12 +265,93 @@ export default function DashboardV3() {
       // Calcular notas por tema
       const themeScores = calculateThemeScores(smallBusinessStats, generalPublicStats);
 
+      // Processar dados progressivos
+      const progressiveResponses: ProgressiveResponse[] = progressiveData.responses || [];
+      const completedProgressive = progressiveResponses.filter(p => p.is_complete).length;
+      
+      // Calcular estatísticas progressivas
+      const progressiveStats = {
+        totalSessions: new Set(progressiveResponses.map(p => p.session_id)).size,
+        completedSessions: new Set(progressiveResponses.filter(p => p.is_complete).map(p => p.session_id)).size,
+        abandonedSessions: 0,
+        completionRate: 0,
+        averageTimePerQuestion: 0,
+        questionAbandonmentRate: {} as Record<number, number>,
+        hourlyProgression: [] as Array<{ hour: string; progressive: number; complete: number }>,
+        campaignStats: {} as Record<string, { total: number; completed: number; abandoned: number; completionRate: number }>,
+        deviceStats: {} as Record<string, number>,
+        realTimeData: progressiveResponses.slice(0, 20)
+      };
+
+      // Calcular taxa de abandono progressivo
+      progressiveStats.abandonedSessions = progressiveStats.totalSessions - progressiveStats.completedSessions;
+      progressiveStats.completionRate = progressiveStats.totalSessions > 0 
+        ? (progressiveStats.completedSessions / progressiveStats.totalSessions) * 100 
+        : 0;
+
+      // Calcular abandono por pergunta
+      for (let q = 1; q <= 6; q++) {
+        const questionResponses = progressiveResponses.filter(p => p.question_number === q);
+        const uniqueSessions = new Set(questionResponses.map(p => p.session_id));
+        const completedSessions = new Set(progressiveResponses.filter(p => p.is_complete).map(p => p.session_id));
+        const abandonedAtQ = uniqueSessions.size - Array.from(uniqueSessions).filter(s => completedSessions.has(s)).length;
+        progressiveStats.questionAbandonmentRate[q] = uniqueSessions.size > 0 ? (abandonedAtQ / uniqueSessions.size) * 100 : 0;
+      }
+
+      // Calcular dados por hora para progressivas
+      const hourProgression: Record<string, { progressive: number; complete: number }> = {};
+      progressiveResponses.forEach(p => {
+        const hour = new Date(p.timestamp).getHours();
+        const hourKey = `${hour.toString().padStart(2, '0')}:00`;
+        if (!hourProgression[hourKey]) hourProgression[hourKey] = { progressive: 0, complete: 0 };
+        hourProgression[hourKey].progressive++;
+        if (p.is_complete) hourProgression[hourKey].complete++;
+      });
+
+      for (let h = 0; h < 24; h++) {
+        const hourKey = `${h.toString().padStart(2, '0')}:00`;
+        progressiveStats.hourlyProgression.push({
+          hour: hourKey,
+          progressive: hourProgression[hourKey]?.progressive || 0,
+          complete: hourProgression[hourKey]?.complete || 0
+        });
+      }
+
+      // Calcular estatísticas por campanha progressivas
+      const campaignProgressiveStats: Record<string, { total: number; completed: number; abandoned: number; completionRate: number }> = {};
+      progressiveResponses.forEach(p => {
+        const campaign = p.campaign_id || 'unknown';
+        if (!campaignProgressiveStats[campaign]) {
+          campaignProgressiveStats[campaign] = { total: 0, completed: 0, abandoned: 0, completionRate: 0 };
+        }
+        campaignProgressiveStats[campaign].total++;
+        if (p.is_complete) campaignProgressiveStats[campaign].completed++;
+      });
+
+      Object.keys(campaignProgressiveStats).forEach(campaign => {
+        const stats = campaignProgressiveStats[campaign];
+        stats.abandoned = stats.total - stats.completed;
+        stats.completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
+      });
+      progressiveStats.campaignStats = campaignProgressiveStats;
+
+      // Calcular estatísticas de dispositivos progressivas
+      const deviceProgressiveStats: Record<string, number> = {};
+      progressiveResponses.forEach(p => {
+        const ua = p.user_agent || '';
+        let device = 'Desktop';
+        if (ua.includes('Mobile')) device = 'Mobile';
+        else if (ua.includes('Tablet')) device = 'Tablet';
+        deviceProgressiveStats[device] = (deviceProgressiveStats[device] || 0) + 1;
+      });
+      progressiveStats.deviceStats = deviceProgressiveStats;
+
       const completionRate = responses.length > 0 ? 100 : 0;
       const avgTimeMinutes = responses.length > 0 ? Math.round(responses.length * 0.5) : 0;
       const systemStatus = 'ONLINE';
 
       setData({
-        totalResponses: allResponses.length,
+        totalResponses: allResponses.length + completedProgressive, // Soma total incluindo progressivos completos
         smallBusinessResponses: smallBusinessResponses.length,
         generalPublicResponses: generalPublicResponses.length,
         responses: responsesWithAudience,
@@ -239,7 +363,10 @@ export default function DashboardV3() {
         completionRate,
         avgTimeMinutes,
         systemStatus,
-        themeScores
+        themeScores,
+        progressiveResponses: progressiveResponses.length,
+        completedProgressive,
+        progressiveStats
       });
 
       setLastUpdate(new Date());
@@ -411,8 +538,41 @@ export default function DashboardV3() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Toggle de Público */}
+        {/* Abas */}
         <div className="mb-8">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
+            <div className="flex items-center justify-center space-x-4">
+              <button
+                onClick={() => setActiveTab('main')}
+                className={`px-6 py-3 rounded-xl font-semibold ${
+                  activeTab === 'main'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                    : 'bg-white/10 text-white/70'
+                }`}
+              >
+                <BarChart3 className="w-5 h-5 inline mr-2" />
+                Dashboard Principal
+              </button>
+              <button
+                onClick={() => setActiveTab('progressive')}
+                className={`px-6 py-3 rounded-xl font-semibold ${
+                  activeTab === 'progressive'
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg'
+                    : 'bg-white/10 text-white/70'
+                }`}
+              >
+                <CheckCircle className="w-5 h-5 inline mr-2" />
+                Dados Progressivos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Conteúdo da Aba Principal */}
+        {activeTab === 'main' && (
+          <>
+            {/* Toggle de Público */}
+            <div className="mb-8">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-4">
             <div className="flex items-center justify-center space-x-4">
               <button
@@ -878,6 +1038,152 @@ export default function DashboardV3() {
             ))}
           </div>
         </div>
+        </>
+        )}
+
+        {/* Conteúdo da Aba Progressiva */}
+        {activeTab === 'progressive' && (
+          <div className="space-y-8">
+            {/* Cards de Métricas Progressivas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-300">SESSÕES TOTAIS</p>
+                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.totalSessions}</p>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <Users className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-green-300">SESSÕES COMPLETAS</p>
+                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.completedSessions}</p>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                    <CheckCircle className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-orange-300">TAXA DE CONCLUSÃO</p>
+                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.completionRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 backdrop-blur-lg rounded-2xl border border-red-500/30 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-red-300">SESSÕES ABANDONADAS</p>
+                    <p className="text-4xl font-bold text-white mt-2">{data.progressiveStats.abandonedSessions}</p>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <Target className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Gráfico de Abandono por Pergunta */}
+            <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">ABANDONO POR PERGUNTA</h3>
+                <Target className="w-6 h-6 text-purple-400" />
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={Object.entries(data.progressiveStats.questionAbandonmentRate).map(([question, rate]) => ({
+                  question: `P${question}`,
+                  rate
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="question" stroke="rgba(255,255,255,0.6)" />
+                  <YAxis stroke="rgba(255,255,255,0.6)" />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                      border: '1px solid rgba(168,85,247,0.3)',
+                      borderRadius: '12px',
+                      color: 'white',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                    }}
+                  />
+                  <Bar dataKey="rate" fill="#A855F7" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Dados em Tempo Real */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white">DADOS EM TEMPO REAL</h3>
+                  <CheckCircle className="w-6 h-6 text-purple-400" />
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-700/50">
+                  <thead className="bg-gray-800/30">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                        SESSÃO
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                        PERGUNTA
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                        RESPOSTA
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                        STATUS
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                        TIMESTAMP
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-transparent divide-y divide-gray-700/30">
+                    {data.progressiveStats.realTimeData.map((response) => (
+                      <tr key={response.id} className="hover:bg-gray-800/30 transition-colors duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {response.session_id.substring(0, 8)}...
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          P{response.question_number}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {response.answer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            response.is_complete
+                              ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                              : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                          }`}>
+                            {response.is_complete ? 'Completo' : 'Em andamento'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {new Date(response.timestamp).toLocaleString('pt-BR')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
