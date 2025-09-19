@@ -49,6 +49,7 @@ def collect():
     is_progressive = "question_number" in data
     is_complete = data.get("is_complete", False)
     
+    # Se tem question_number, é sempre progressivo (mesmo que is_complete=true)
     if is_progressive:
         return handle_progressive_data(data)
     else:
