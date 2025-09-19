@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "dashboard/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/creative-v2/(.*)",
+      "dest": "/creative-v2/$1"
+    },
+    {
+      "src": "/creative/(.*)",
+      "dest": "/creative/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dashboard/$1"
+    }
+  ]
+}
