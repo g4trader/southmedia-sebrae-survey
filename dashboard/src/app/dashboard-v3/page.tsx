@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
-import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, AlertTriangle, Zap, CheckCircle } from 'lucide-react';
+import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, AlertTriangle, Zap, CheckCircle, BarChart3 } from 'lucide-react';
 
 interface SurveyResponse {
   id: string;
@@ -694,95 +694,360 @@ export default function DashboardV3() {
               </div>
             </div>
 
-            {/* Gráficos */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Gráfico de Respostas por Hora */}
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">📈 Respostas por Hora</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={data.hourlyData}>
-                    <defs>
-                      <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#A855F7" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#A855F7" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="hour" stroke="#9CA3AF" />
-                    <YAxis stroke="#9CA3AF" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#F9FAFB'
-                      }} 
+            {/* Gráfico Diário com Meta */}
+            <div className="mb-8">
+              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-2xl border border-purple-500/20 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">EVOLUÇÃO DIÁRIA - META VS REALIZADO</h3>
+                  <Calendar className="w-6 h-6 text-purple-400" />
+                </div>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart 
+                    data={data.dailyData} 
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                    syncId="dashboard-charts"
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
                     />
-                    <Area 
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(168,85,247,0.3)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    <Line 
                       type="monotone" 
-                      dataKey="count" 
-                      stroke="#A855F7" 
-                      fillOpacity={1} 
-                      fill="url(#colorCount)" 
+                      dataKey="smallBusiness" 
+                      stroke="#3B82F6" 
+                      strokeWidth={3}
+                      name="Pequenos Negócios"
+                      dot={false}
+                      activeDot={{ r: 4, stroke: '#3B82F6', strokeWidth: 2 }}
                     />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Gráfico de Dispositivos */}
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">📱 Distribuição por Dispositivo</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={Object.entries(data.deviceStats).map(([device, count]) => ({ name: device, value: count }))}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {Object.entries(data.deviceStats).map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1F2937', 
-                        border: '1px solid #374151',
-                        borderRadius: '8px',
-                        color: '#F9FAFB'
-                      }} 
+                    <Line 
+                      type="monotone" 
+                      dataKey="generalPublic" 
+                      stroke="#10B981" 
+                      strokeWidth={3}
+                      name="Sociedade"
+                      dot={false}
+                      activeDot={{ r: 4, stroke: '#10B981', strokeWidth: 2 }}
                     />
-                  </PieChart>
+                    <Line 
+                      type="monotone" 
+                      dataKey="smallBusinessTarget" 
+                      stroke="#EF4444" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      name="Meta Pequenos Negócios"
+                      dot={false}
+                      activeDot={{ r: 3, stroke: '#EF4444', strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="generalPublicTarget" 
+                      stroke="#F59E0B" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      name="Meta Sociedade"
+                      dot={false}
+                      activeDot={{ r: 3, stroke: '#F59E0B', strokeWidth: 2 }}
+                    />
+                  </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Estatísticas das Perguntas */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-6 mb-8">
-              <h3 className="text-lg font-semibold text-white mb-6">📊 Estatísticas das Perguntas</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Object.entries(data.questionStats).map(([question, answers]) => (
-                  <div key={question} className="bg-white/5 rounded-xl p-4">
-                    <h4 className="text-sm font-medium text-purple-300 mb-3">
-                      {questionLabels[question as keyof typeof questionLabels]}
-                    </h4>
-                    <div className="space-y-2">
-                      {Object.entries(answers)
-                        .sort(([,a], [,b]) => b - a)
-                        .slice(0, 3)
-                        .map(([answer, count]) => (
-                          <div key={answer} className="flex justify-between items-center">
-                            <span className="text-xs text-gray-300">
-                              {answerLabels[answer as keyof typeof answerLabels] || answer}
-                            </span>
-                            <span className="text-xs font-medium text-white">{count}</span>
-                          </div>
-                        ))}
+            {/* Gráficos de Evolução por Público */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Pequenos Negócios */}
+              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 backdrop-blur-lg rounded-2xl border border-blue-500/20 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">PEQUENOS NEGÓCIOS - META VS REALIZADO</h3>
+                  <Target className="w-6 h-6 text-blue-400" />
+                </div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart 
+                    data={data.dailyData} 
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                    syncId="dashboard-charts"
+                  >
+                    <defs>
+                      <linearGradient id="colorSmallBusiness" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="colorSmallBusinessTarget" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(59,130,246,0.3)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="smallBusiness" 
+                      stroke="#3B82F6" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorSmallBusiness)" 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="smallBusinessTarget" 
+                      stroke="#EF4444" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      fillOpacity={0.3} 
+                      fill="url(#colorSmallBusinessTarget)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-blue-300">
+                    Progresso: {data.smallBusinessResponses} / 1500 ({Math.round((data.smallBusinessResponses / 1500) * 100)}%)
+                  </p>
+                </div>
+              </div>
+
+              {/* Sociedade */}
+              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 backdrop-blur-lg rounded-2xl border border-green-500/20 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">SOCIEDADE - META VS REALIZADO</h3>
+                  <Users className="w-6 h-6 text-green-400" />
+                </div>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart 
+                    data={data.dailyData} 
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }} 
+                    syncId="dashboard-charts"
+                  >
+                    <defs>
+                      <linearGradient id="colorGeneralPublic" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="colorGeneralPublicTarget" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#F59E0B" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      interval="preserveStartEnd"
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      stroke="rgba(255,255,255,0.6)" 
+                      tick={{ fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(16,185,129,0.3)',
+                        borderRadius: '12px',
+                        color: 'white',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="generalPublic" 
+                      stroke="#10B981" 
+                      strokeWidth={3}
+                      fillOpacity={1} 
+                      fill="url(#colorGeneralPublic)" 
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="generalPublicTarget" 
+                      stroke="#F59E0B" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      fillOpacity={0.3} 
+                      fill="url(#colorGeneralPublicTarget)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div className="mt-4 text-center">
+                  <p className="text-sm text-green-300">
+                    Progresso: {data.generalPublicResponses} / 1500 ({Math.round((data.generalPublicResponses / 1500) * 100)}%)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabela de Notas por Tema */}
+            <div className="mb-8">
+              <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-white">NOTAS MÉDIAS POR TEMA E PÚBLICO</h3>
+                    <BarChart3 className="w-6 h-6 text-purple-400" />
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-700/50">
+                    <thead className="bg-gray-800/30">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                          TEMA
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-blue-300 uppercase tracking-wider">
+                          PEQUENOS NEGÓCIOS
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-green-300 uppercase tracking-wider">
+                          SOCIEDADE
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                          DIFERENÇA
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-transparent divide-y divide-gray-700/30">
+                      {Object.entries(questionLabels).map(([question, label]) => {
+                        const smallBusinessScore = data.themeScores.smallBusiness[question] || 0;
+                        const generalPublicScore = data.themeScores.generalPublic[question] || 0;
+                        const difference = smallBusinessScore - generalPublicScore;
+                        
+                        return (
+                          <tr key={question}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                              {label}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                smallBusinessScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                                smallBusinessScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                                'bg-red-500/20 text-red-300 border border-red-500/30'
+                              }`}>
+                                {smallBusinessScore.toFixed(1)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                generalPublicScore >= 8 ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                                generalPublicScore >= 5 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' :
+                                'bg-red-500/20 text-red-300 border border-red-500/30'
+                              }`}>
+                                {generalPublicScore.toFixed(1)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                Math.abs(difference) < 0.5 ? 'bg-gray-500/20 text-gray-300 border border-gray-500/30' :
+                                difference > 0 ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                'bg-orange-500/20 text-orange-300 border border-orange-500/30'
+                              }`}>
+                                {difference > 0 ? '+' : ''}{difference.toFixed(1)}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* Respostas por Pergunta (Filtrado por Público) */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-8">ANÁLISE POR PERGUNTA - {selectedAudience === 'all' ? 'AMBOS OS PÚBLICOS' : selectedAudience === 'small_business' ? 'PEQUENOS NEGÓCIOS' : 'SOCIEDADE'}</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Object.entries(questionLabels).map(([question, label], index) => (
+                  <div key={question} className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-white">{label}</h3>
+                      <div className={`w-3 h-3 rounded-full`} style={{backgroundColor: COLORS[index % COLORS.length]}}></div>
                     </div>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart 
+                        data={Object.entries(filteredData.stats[question] || {}).map(([answer, count]) => ({
+                          answer: answerLabels[answer as keyof typeof answerLabels] || answer,
+                          count
+                        }))}
+                        margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                        syncId="dashboard-charts"
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                        <XAxis 
+                          dataKey="answer" 
+                          angle={-45} 
+                          textAnchor="end" 
+                          height={60} 
+                          stroke="rgba(255,255,255,0.6)"
+                          tick={{ fontSize: 10 }}
+                          interval="preserveStartEnd"
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis 
+                          stroke="rgba(255,255,255,0.6)" 
+                          tick={{ fontSize: 10 }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip 
+                          contentStyle={{
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            border: '1px solid rgba(255,255,255,0.2)',
+                            borderRadius: '12px',
+                            color: 'white',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+                          }}
+                        />
+                        <Bar 
+                          dataKey="count" 
+                          fill={COLORS[index % COLORS.length]}
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 ))}
               </div>
