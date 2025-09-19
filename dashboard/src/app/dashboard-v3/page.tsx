@@ -997,18 +997,18 @@ export default function DashboardV3() {
                       answer: answerLabels[answer as keyof typeof answerLabels] || answer,
                       count
                     }))}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 80 }}
                     syncId="dashboard-charts"
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis 
                       dataKey="answer" 
-                      angle={-45} 
+                      angle={-60} 
                       textAnchor="end" 
-                      height={60} 
+                      height={80} 
                       stroke="rgba(255,255,255,0.6)"
-                      tick={{ fontSize: 10 }}
-                      interval="preserveStartEnd"
+                      tick={{ fontSize: 8 }}
+                      interval={0}
                       axisLine={false}
                       tickLine={false}
                     />
