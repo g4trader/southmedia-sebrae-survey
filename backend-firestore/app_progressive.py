@@ -57,6 +57,8 @@ def collect():
 def handle_progressive_data(data):
     """Handle progressive data collection (single question at a time)"""
     try:
+        print(f"PROGRESSIVE: Iniciando handle_progressive_data com dados: {data}")
+        
         # Validate progressive data
         required_fields = ["session_id", "question_number", "answer"]
         missing = [field for field in required_fields if not data.get(field)]
