@@ -264,15 +264,15 @@ export default function DashboardV3() {
         deviceStats[device] = (deviceStats[device] || 0) + 1;
       });
 
+      // Processar dados progressivos
+      const progressiveResponses: ProgressiveResponse[] = progressiveData.responses || [];
+      const completedProgressive = progressiveResponses.filter(p => p.is_complete).length;
+
       // Calcular dados diários com meta
       const dailyData = calculateDailyData(responsesWithAudience, campaignStartDate, campaignEndDate, targetPerAudience);
 
       // Calcular notas por tema
       const themeScores = calculateThemeScores(smallBusinessStats, generalPublicStats);
-
-      // Processar dados progressivos
-      const progressiveResponses: ProgressiveResponse[] = progressiveData.responses || [];
-      const completedProgressive = progressiveResponses.filter(p => p.is_complete).length;
       
       // Calcular estatísticas progressivas
       const progressiveStats = {
