@@ -1152,7 +1152,7 @@ export default function DashboardV3() {
                   const session = sessionsMap.get(response.session_id);
                   
                   // Evitar duplicatas - só adicionar se não existir esta pergunta
-                  const existingQuestion = session.responses.find(r => r.question_number === response.question_number);
+                  const existingQuestion = session.responses.find((r: ProgressiveResponse) => r.question_number === response.question_number);
                   if (!existingQuestion) {
                     session.responses.push(response);
                   }
