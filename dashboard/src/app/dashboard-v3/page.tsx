@@ -285,7 +285,7 @@ export default function DashboardV3() {
         hourlyProgression: [] as Array<{ hour: string; progressive: number; complete: number }>,
         campaignStats: {} as Record<string, { total: number; completed: number; abandoned: number; completionRate: number }>,
         deviceStats: {} as Record<string, number>,
-        realTimeData: progressiveResponses.slice(0, 20)
+        realTimeData: progressiveResponses
       };
 
       // Calcular taxa de abandono progressivo
