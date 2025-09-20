@@ -361,5 +361,56 @@ def get_analytics():
             jsonify({"ok": False, "error": str(e)}), 500
         )))
 
+@app.route("/cleanup-test-sessions", methods=["DELETE", "OPTIONS"])
+def cleanup_test_sessions():
+    """Endpoint para remover todas as sessões de teste que começam com 'test_'"""
+    if request.method == "OPTIONS":
+        return _corsify(make_response(("", 204)))
+    
+    try:
+        if not FS_AVAILABLE:
+            return _corsify(make_response((
+                jsonify({"ok": False, "error": "Firestore não disponível"}), 500
+            )))
+        
+        client = firestore.Client(project=PROJECT_ID) if PROJECT_ID else firestore.Client()
+        
+        # 1. Remover da coleção principal
+        responses_ref = client.collection(FS_COLLECTION)
+        test_responses = responses_ref.where('session_id', '>=', 'test_').where('session_id', '<', 'test`').stream()
+        
+        deleted_responses = 0
+        for doc in test_responses:
+            doc.reference.delete()
+            deleted_responses += 1
+        
+        # 2. Remover da coleção progressiva
+        progressive_ref = client.collection(FS_PROGRESSIVE_COLLECTION)
+        test_progressive = progressive_ref.where('session_id', '>=', 'test_').where('session_id', '<', 'test`').stream()
+        
+        deleted_progressive = 0
+        for doc in test_progressive:
+            doc.reference.delete()
+            deleted_progressive += 1
+        
+        total_deleted = deleted_responses + deleted_progressive
+        
+        return _corsify(make_response((
+            jsonify({
+                "ok": True,
+                "message": "Sessões de teste removidas com sucesso",
+                "deleted": {
+                    "responses": deleted_responses,
+                    "progressive": deleted_progressive,
+                    "total": total_deleted
+                }
+            }), 200
+        )))
+        
+    except Exception as e:
+        return _corsify(make_response((
+            jsonify({"ok": False, "error": str(e)}), 500
+        )))
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
