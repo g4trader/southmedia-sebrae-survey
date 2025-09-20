@@ -356,7 +356,7 @@ export default function DashboardV3() {
       const systemStatus = 'ONLINE';
 
       setData({
-        totalResponses: allResponses.length + completedProgressive, // Soma total incluindo progressivos completos
+        totalResponses: responses.length + completedProgressive, // Soma total incluindo progressivos completos (sem registros de teste)
         smallBusinessResponses: smallBusinessResponses.length + progressiveSmallBusiness.length, // Incluir progressivos
         generalPublicResponses: generalPublicResponses.length + progressiveGeneralPublic.length, // Incluir progressivos
         responses: responsesWithAudience,
