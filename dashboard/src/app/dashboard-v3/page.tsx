@@ -1121,64 +1121,112 @@ export default function DashboardV3() {
               </ResponsiveContainer>
             </div>
 
-            {/* Dados em Tempo Real */}
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-700/50 bg-gray-800/30">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">DADOS EM TEMPO REAL</h3>
-                  <CheckCircle className="w-6 h-6 text-purple-400" />
-                </div>
+            {/* Dados em Tempo Real - Cards por Sessão */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">DADOS EM TEMPO REAL - SESSÕES ATIVAS</h3>
+                <CheckCircle className="w-6 h-6 text-purple-400" />
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-700/50">
-                  <thead className="bg-gray-800/30">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                        SESSÃO
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                        PERGUNTA
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                        RESPOSTA
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                        STATUS
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
-                        TIMESTAMP
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-transparent divide-y divide-gray-700/30">
-                    {data.progressiveStats.realTimeData.map((response) => (
-                      <tr key={response.id} className="hover:bg-gray-800/30 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {response.session_id.substring(0, 8)}...
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          P{response.question_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {response.answer}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                            response.is_complete
+              
+              {/* Agrupar dados por sessão */}
+              {(() => {
+                const sessionsMap = new Map();
+                data.progressiveStats.realTimeData.forEach(response => {
+                  if (!sessionsMap.has(response.session_id)) {
+                    sessionsMap.set(response.session_id, {
+                      session_id: response.session_id,
+                      responses: [],
+                      is_complete: false,
+                      last_activity: response.timestamp,
+                      campaign_id: response.campaign_id,
+                      audience_type: response.audience_type
+                    });
+                  }
+                  const session = sessionsMap.get(response.session_id);
+                  session.responses.push(response);
+                  session.is_complete = response.is_complete || session.is_complete;
+                  if (new Date(response.timestamp) > new Date(session.last_activity)) {
+                    session.last_activity = response.timestamp;
+                  }
+                });
+
+                const sessions = Array.from(sessionsMap.values()).sort((a, b) => 
+                  new Date(b.last_activity).getTime() - new Date(a.last_activity).getTime()
+                );
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {sessions.map((session) => (
+                      <div key={session.session_id} className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-xl border border-purple-500/20 p-4 hover:border-purple-500/40 transition-all duration-300">
+                        {/* Header do Card */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-3 h-3 rounded-full ${
+                              session.is_complete ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'
+                            }`}></div>
+                            <div>
+                              <p className="text-sm font-semibold text-white">
+                                {session.session_id.substring(0, 12)}...
+                              </p>
+                              <p className="text-xs text-purple-300">
+                                {session.audience_type || 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            session.is_complete
                               ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                               : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
                           }`}>
-                            {response.is_complete ? 'Completo' : 'Em andamento'}
+                            {session.is_complete ? 'Completo' : 'Ativo'}
                           </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          {new Date(response.timestamp).toLocaleString('pt-BR')}
-                        </td>
-                      </tr>
+                        </div>
+
+                        {/* Progresso da Sessão */}
+                        <div className="mb-4">
+                          <div className="flex justify-between text-xs text-purple-300 mb-2">
+                            <span>Progresso</span>
+                            <span>{session.responses.length}/6 perguntas</span>
+                          </div>
+                          <div className="w-full bg-gray-700/50 rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${(session.responses.length / 6) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Respostas da Sessão */}
+                        <div className="space-y-2 mb-4">
+                          {session.responses
+                            .sort((a, b) => a.question_number - b.question_number)
+                            .map((response) => (
+                            <div key={response.id} className="flex items-center justify-between bg-white/5 rounded-lg p-2">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs font-medium text-purple-300">
+                                  P{response.question_number}
+                                </span>
+                                <span className="text-xs text-white">
+                                  {response.answer}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-400">
+                                {new Date(response.timestamp).toLocaleTimeString('pt-BR')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Footer do Card */}
+                        <div className="flex items-center justify-between text-xs text-gray-400 border-t border-white/10 pt-3">
+                          <span>Última atividade:</span>
+                          <span>{new Date(session.last_activity).toLocaleString('pt-BR')}</span>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
