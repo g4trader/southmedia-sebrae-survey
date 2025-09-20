@@ -133,6 +133,8 @@ export default function DashboardV3() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [selectedAudience, setSelectedAudience] = useState<'all' | 'small_business' | 'general_public'>('all');
   const [activeTab, setActiveTab] = useState<'main' | 'progressive'>('main');
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 9;
 
   // CSS otimizado para estabilizar Recharts sem quebrar funcionalidade
   useEffect(() => {
@@ -443,6 +445,11 @@ export default function DashboardV3() {
     const interval = setInterval(fetchData, 300000); // Atualizar a cada 5 minutos
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  // Reset página quando mudar de aba
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   if (loading) {
     return (
@@ -1143,7 +1150,13 @@ export default function DashboardV3() {
                     });
                   }
                   const session = sessionsMap.get(response.session_id);
-                  session.responses.push(response);
+                  
+                  // Evitar duplicatas - só adicionar se não existir esta pergunta
+                  const existingQuestion = session.responses.find(r => r.question_number === response.question_number);
+                  if (!existingQuestion) {
+                    session.responses.push(response);
+                  }
+                  
                   session.is_complete = response.is_complete || session.is_complete;
                   if (new Date(response.timestamp) > new Date(session.last_activity)) {
                     session.last_activity = response.timestamp;
@@ -1154,9 +1167,16 @@ export default function DashboardV3() {
                   new Date(b.last_activity).getTime() - new Date(a.last_activity).getTime()
                 );
 
+                // Paginação
+                const totalPages = Math.ceil(sessions.length / cardsPerPage);
+                const startIndex = (currentPage - 1) * cardsPerPage;
+                const endIndex = startIndex + cardsPerPage;
+                const currentSessions = sessions.slice(startIndex, endIndex);
+
                 return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sessions.map((session) => (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {currentSessions.map((session) => (
                       <div key={session.session_id} className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-lg rounded-xl border border-purple-500/20 p-4 hover:border-purple-500/40 transition-all duration-300">
                         {/* Header do Card */}
                         <div className="flex items-center justify-between mb-4">
@@ -1224,7 +1244,58 @@ export default function DashboardV3() {
                         </div>
                       </div>
                     ))}
-                  </div>
+                    </div>
+
+                    {/* Paginação */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center mt-8 space-x-4">
+                        <button
+                          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                          disabled={currentPage === 1}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            currentPage === 1
+                              ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                              : 'bg-purple-500/20 text-white hover:bg-purple-500/30 border border-purple-500/30'
+                          }`}
+                        >
+                          Anterior
+                        </button>
+                        
+                        <div className="flex items-center space-x-2">
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
+                                currentPage === page
+                                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+                                  : 'bg-white/10 text-white/70 hover:bg-white/20'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          ))}
+                        </div>
+                        
+                        <button
+                          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                          disabled={currentPage === totalPages}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                            currentPage === totalPages
+                              ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
+                              : 'bg-purple-500/20 text-white hover:bg-purple-500/30 border border-purple-500/30'
+                          }`}
+                        >
+                          Próximo
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Info da paginação */}
+                    <div className="text-center mt-4 text-sm text-purple-300">
+                      Mostrando {startIndex + 1}-{Math.min(endIndex, sessions.length)} de {sessions.length} sessões
+                    </div>
+                  </>
                 );
               })()}
             </div>
