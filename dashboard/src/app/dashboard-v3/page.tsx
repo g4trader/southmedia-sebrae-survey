@@ -1199,7 +1199,7 @@ export default function DashboardV3() {
                         {/* Respostas da Sessão */}
                         <div className="space-y-2 mb-4">
                           {session.responses
-                            .sort((a, b) => a.question_number - b.question_number)
+                            .sort((a: ProgressiveResponse, b: ProgressiveResponse) => a.question_number - b.question_number)
                             .map((response) => (
                             <div key={response.id} className="flex items-center justify-between bg-white/5 rounded-lg p-2">
                               <div className="flex items-center space-x-2">
