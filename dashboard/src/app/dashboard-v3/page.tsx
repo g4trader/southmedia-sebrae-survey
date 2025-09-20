@@ -207,11 +207,6 @@ export default function DashboardV3() {
       const smallBusinessResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 0);
       const generalPublicResponses = responses.filter((_: SurveyResponse, index: number) => index % 2 === 1);
 
-      // Separar dados progressivos completos por público
-      const completedProgressiveResponses = progressiveResponses.filter(p => p.is_complete);
-      const progressiveSmallBusiness = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 0);
-      const progressiveGeneralPublic = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 1);
-
       // Adicionar audience_type simulado
       const responsesWithAudience = responses.map((response: SurveyResponse, index: number) => ({
         ...response,
@@ -267,6 +262,11 @@ export default function DashboardV3() {
       // Processar dados progressivos
       const progressiveResponses: ProgressiveResponse[] = progressiveData.responses || [];
       const completedProgressive = progressiveResponses.filter(p => p.is_complete).length;
+      
+      // Separar dados progressivos completos por público
+      const completedProgressiveResponses = progressiveResponses.filter(p => p.is_complete);
+      const progressiveSmallBusiness = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 0);
+      const progressiveGeneralPublic = completedProgressiveResponses.filter((_: ProgressiveResponse, index: number) => index % 2 === 1);
 
       // Calcular dados diários com meta
       const dailyData = calculateDailyData(responsesWithAudience, campaignStartDate, campaignEndDate, targetPerAudience);
