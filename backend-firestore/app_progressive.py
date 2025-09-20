@@ -112,26 +112,26 @@ def handle_progressive_data(data):
         print(f"DEBUG: str(is_complete): {str(is_complete)}")
         if is_complete:
             print("DEBUG: Entrando na condição is_complete")
-                complete_doc_id = str(uuid.uuid4())
-                complete_row = {
-                    "id": complete_doc_id,
-                    "ts": data.get("timestamp", dt.datetime.utcnow().isoformat() + "Z"),
-                    "session_id": data.get("session_id"),
-                    "campaign_id": data.get("campaign_id"),
-                    "line_item_id": data.get("line_item_id"),
-                    "creative_id": data.get("creative_id"),
-                    "page_url": data.get("page_url"),
-                    "ua": data.get("user_agent", request.headers.get("User-Agent", "")),
-                    "referer": request.headers.get("Referer", ""),
-                    "origin": request.headers.get("Origin", ""),
-                    "is_complete": True,
-                    "completion_timestamp": data.get("completion_timestamp"),
-                    "audience_type": data.get("audience_type"),
-                    # Adicionar todas as respostas
-                    **data.get("all_answers", {})
-                }
-                client.collection(FS_COLLECTION).document(complete_doc_id).set(complete_row)
-                stored = "firestore_both"
+            complete_doc_id = str(uuid.uuid4())
+            complete_row = {
+                "id": complete_doc_id,
+                "ts": data.get("timestamp", dt.datetime.utcnow().isoformat() + "Z"),
+                "session_id": data.get("session_id"),
+                "campaign_id": data.get("campaign_id"),
+                "line_item_id": data.get("line_item_id"),
+                "creative_id": data.get("creative_id"),
+                "page_url": data.get("page_url"),
+                "ua": data.get("user_agent", request.headers.get("User-Agent", "")),
+                "referer": request.headers.get("Referer", ""),
+                "origin": request.headers.get("Origin", ""),
+                "is_complete": True,
+                "completion_timestamp": data.get("completion_timestamp"),
+                "audience_type": data.get("audience_type"),
+                # Adicionar todas as respostas
+                **data.get("all_answers", {})
+            }
+            client.collection(FS_COLLECTION).document(complete_doc_id).set(complete_row)
+            stored = "firestore_both"
 
         return _corsify(make_response((
             jsonify({
