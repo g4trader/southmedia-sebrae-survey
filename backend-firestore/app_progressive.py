@@ -361,7 +361,7 @@ def get_analytics():
             jsonify({"ok": False, "error": str(e)}), 500
         )))
 
-@app.route("/cleanup-test-sessions", methods=["DELETE", "OPTIONS"])
+@app.route("/cleanup-test-sessions", methods=["POST", "OPTIONS"])
 def cleanup_test_sessions():
     """Endpoint para remover todas as sessões de teste que começam com 'test_'"""
     if request.method == "OPTIONS":
