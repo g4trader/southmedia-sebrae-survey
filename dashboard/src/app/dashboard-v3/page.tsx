@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
 import { Users, TrendingUp, Target, RefreshCw, Calendar, Award, BarChart3, CheckCircle } from 'lucide-react';
 
 interface SurveyResponse {
@@ -1200,7 +1200,7 @@ export default function DashboardV3() {
                         <div className="space-y-2 mb-4">
                           {session.responses
                             .sort((a: ProgressiveResponse, b: ProgressiveResponse) => a.question_number - b.question_number)
-                            .map((response) => (
+                            .map((response: ProgressiveResponse) => (
                             <div key={response.id} className="flex items-center justify-between bg-white/5 rounded-lg p-2">
                               <div className="flex items-center space-x-2">
                                 <span className="text-xs font-medium text-purple-300">

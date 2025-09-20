@@ -230,15 +230,6 @@ export default function ProgressiveDashboard() {
 
   if (!data) return null;
 
-  const getFilteredCampaignData = () => {
-    if (selectedCampaign === 'all') {
-      return data;
-    }
-    return {
-      ...data,
-      campaignStats: { [selectedCampaign]: data.campaignStats[selectedCampaign] || { total: 0, completed: 0, abandoned: 0, completionRate: 0 } }
-    };
-  };
 
 
   return (
