@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['recharts', 'lucide-react'],
   },
+  
+  // Optimize for Vercel deployment
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
   images: {
     unoptimized: true,
   },

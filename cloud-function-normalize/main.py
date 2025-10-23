@@ -253,3 +253,5 @@ if __name__ == '__main__':
     # Para testes locais
     result = process_new_responses()
     print(json.dumps(result, indent=2))
+
+

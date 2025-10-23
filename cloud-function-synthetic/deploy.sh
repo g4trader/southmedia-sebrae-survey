@@ -63,3 +63,5 @@ else
     echo "❌ Erro no deploy da função"
     exit 1
 fi
+
+

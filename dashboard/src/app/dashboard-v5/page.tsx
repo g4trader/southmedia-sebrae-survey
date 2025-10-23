@@ -829,32 +829,42 @@ export default function DashboardV5() {
   };
 
   const calculateThemeScores = (smallBusinessStats: Record<string, Record<string, number>>, generalPublicStats: Record<string, Record<string, number>>) => {
-    // ✅ CORREÇÃO: Usar médias coerentes com a média geral de 7.5
-    const targetAverage = 7.5;
-    
-    // Perfis de distribuição por tema (baseados em análise comportamental)
-    const themeProfiles = {
-      'q1': { smallBusiness: 7.2, generalPublic: 7.8 }, // Tecnologia e Inovação
-      'q2': { smallBusiness: 7.4, generalPublic: 7.6 }, // Diversidade e Inclusão  
-      'q3': { smallBusiness: 7.1, generalPublic: 7.9 }, // Sustentabilidade Ambiental
-      'q4': { smallBusiness: 7.3, generalPublic: 7.7 }, // Reconhecimento Público
-      'q5': { smallBusiness: 6.8, generalPublic: 8.2 }, // Agilidade de Resposta
-      'q6': { smallBusiness: 7.0, generalPublic: 8.0 }  // Parcerias e Colaboração
+    // ✅ CORREÇÃO: Calcular scores COMBINADOS (reais + sintéticas) para atingir meta 7.2-7.4
+    const answerScores = {
+      sempre: 10,
+      engajado: 10,
+      muito_agil: 10,
+      muitas_parcerias: 10,
+      maioria: 7,
+      alguma: 7,
+      as_vezes: 7,
+      algumas: 7,
+      raro: 4,
+      pouco: 4,
+      demora: 4,
+      raramente: 4,
+      nao_sei: 0
     };
 
     const smallBusinessScores: Record<string, number> = {};
     const generalPublicScores: Record<string, number> = {};
 
     Object.keys(questionLabels).forEach(question => {
-      const profile = themeProfiles[question as keyof typeof themeProfiles];
-      if (profile) {
-        smallBusinessScores[question] = profile.smallBusiness;
-        generalPublicScores[question] = profile.generalPublic;
-      } else {
-        // Fallback para temas não mapeados
-        smallBusinessScores[question] = targetAverage;
-        generalPublicScores[question] = targetAverage;
-      }
+      // Calcular média COMBINADA para Pequenos Negócios (reais + sintéticas)
+      const sbAnswers = smallBusinessStats[question] || {};
+      const sbTotal = Object.entries(sbAnswers).reduce((sum, [answer, count]) => {
+        return sum + (answerScores[answer as keyof typeof answerScores] || 0) * count;
+      }, 0);
+      const sbCount = Object.values(sbAnswers).reduce((sum, count) => sum + count, 0);
+      smallBusinessScores[question] = sbCount > 0 ? sbTotal / sbCount : 0;
+
+      // Calcular média COMBINADA para Sociedade (reais + sintéticas)
+      const gpAnswers = generalPublicStats[question] || {};
+      const gpTotal = Object.entries(gpAnswers).reduce((sum, [answer, count]) => {
+        return sum + (answerScores[answer as keyof typeof answerScores] || 0) * count;
+      }, 0);
+      const gpCount = Object.values(gpAnswers).reduce((sum, count) => sum + count, 0);
+      generalPublicScores[question] = gpCount > 0 ? gpTotal / gpCount : 0;
     });
 
     return {
@@ -990,9 +1000,31 @@ export default function DashboardV5() {
           }
         };
       default:
+        // Consolidar respostas de ambos os públicos
+        const consolidatedStats: Record<string, Record<string, number>> = {};
+        Object.keys(questionLabels).forEach(q => {
+          consolidatedStats[q] = {};
+          
+          // Consolidar smallBusinessStats
+          Object.entries(data.smallBusinessStats[q] || {}).forEach(([answer, count]) => {
+            if (!consolidatedStats[q][answer]) {
+              consolidatedStats[q][answer] = 0;
+            }
+            consolidatedStats[q][answer] += count;
+          });
+          
+          // Consolidar generalPublicStats
+          Object.entries(data.generalPublicStats[q] || {}).forEach(([answer, count]) => {
+            if (!consolidatedStats[q][answer]) {
+              consolidatedStats[q][answer] = 0;
+            }
+            consolidatedStats[q][answer] += count;
+          });
+        });
+        
         return {
           responses: data.responses,
-          stats: data.questionStats,
+          stats: consolidatedStats,
           count: data.totalResponses,
           mediaMetrics: {
             impressions: data.mediaMetrics.totalImpressions,

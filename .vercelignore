@@ -1,0 +1,15 @@
+# Vercel ignore file
+node_modules
+.git
+.next/cache
+**/*.log
+tmp
+.DS_Store
+coverage
+docs
+public/raw-assets/**
+*.pack
+*.pack.gz
+.cache
+
+
